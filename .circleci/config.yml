@@ -9,23 +9,21 @@ jobs:
       - image: circleci/node:8.11
     steps:
       - checkout
-      - run: yarn config set workspaces-experimental true
-      - run: yarn
-      - run: yarn run bootstrap
-      - run: yarn run build
+      # - run: yarn config set workspaces-experimental true
+      # - run: yarn
+      # - run: yarn run bootstrap
+      # - run: yarn run build
 
       - run: git clone git@github.com:jordanranz/aws-amplify-cypress-auth.git
       - run: cd aws-amplify-cypress-auth
-      - run: yarn global add awsmobile-cli
       - run: 
           command: |
+            yarn global add awsmobile-cli
             awsmobile configure
             echo $IAM_ACCESS_KEY\n
             echo $IAM_SECRET_KEY\n
-
-      - run: awsmobile init --yes
-      - run: cd ..
-      - run: rm -rf aws-amplify-cypress-auth
+            awsmobile init --yes
+            yarn start
 
       - run: yarn run test --scope aws-amplify
       - run: yarn run test --scope aws-amplify-react
