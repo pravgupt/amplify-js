@@ -33,7 +33,6 @@ jobs:
             yarn start &
       - run:
           command: |
-            cd ..
             yarn cypress
 
 
