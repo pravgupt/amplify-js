@@ -33,7 +33,7 @@ jobs:
             yarn start &
       - run:
           command: |
-            yarn cypress
+            yarn cypress --scope aws-amplify-react
 
 
       # - run: yarn run test --scope aws-amplify
