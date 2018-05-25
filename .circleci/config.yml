@@ -16,20 +16,28 @@ jobs:
 
       - run: git clone git@github.com:jordanranz/aws-amplify-cypress-auth.git
       - run: cd aws-amplify-cypress-auth
+      - run: yarn global add awsmobile-cli
+      - run: 
+          command: |
+            awsmobile configure
+            echo $IAM_ACCESS_KEY\n
+            echo $IAM_SECRET_KEY\n
+
+      - run: awsmobile init --yes
       - run: cd ..
       - run: rm -rf aws-amplify-cypress-auth
 
       - run: yarn run test --scope aws-amplify
       - run: yarn run test --scope aws-amplify-react
       - run: yarn run coverage
-      - run:
-          name: "Publish to Amplify Package"
-          command: |
-            if [ -z "$CIRCLE_PULL_REQUEST" ]; then
-              echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-              git config --global user.email $GITHUB_EMAIL
-              git config --global user.name $GITHUB_USER
-              yarn run publish:$CIRCLE_BRANCH
-            else
-              echo "Skipping deploy."
-            fi
+      # - run:
+      #     name: "Publish to Amplify Package"
+      #     command: |
+      #       if [ -z "$CIRCLE_PULL_REQUEST" ]; then
+      #         echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+      #         git config --global user.email $GITHUB_EMAIL
+      #         git config --global user.name $GITHUB_USER
+      #         yarn run publish:$CIRCLE_BRANCH
+      #       else
+      #         echo "Skipping deploy."
+      #       fi
