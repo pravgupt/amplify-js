@@ -12,7 +12,7 @@ describe('withAuthenticator HOC Sign Up', function() {
     cy.get('input[name=password]').type(Cypress.env('COGNITO_SIGN_IN_PASSWORD'))
     cy.get('.amplify-button').contains('Sign In').click()
     
-    cy.wait(500)
+    cy.wait(2000)
 
     // Check for signed in page
     cy.get('.App-title').contains('Welcome to React')
