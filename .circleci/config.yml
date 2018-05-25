@@ -28,7 +28,7 @@ jobs:
       - run: 
           name: "Clone auth test and run server"
           command: |
-            git ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/aws-amplify-cypress-auth
+            git clone ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/aws-amplify-cypress-auth
             cd aws-amplify-cypress-auth
             yarn
             awsmobile configure aws $IAM_ACCESS_KEY $IAM_SECRET_KEY us-east-1
