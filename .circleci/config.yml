@@ -9,7 +9,10 @@ machine:
 jobs:
   build:
     docker:
-      - image: circleci/node:8.11
+      - image: cypress/base:10
+        environment:
+            ## this enables colors in the output
+            TERM: xterm
     steps:
       - checkout
       - run: yarn config set workspaces-experimental true
