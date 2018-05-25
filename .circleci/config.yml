@@ -25,6 +25,7 @@ jobs:
             git clone git@github.com:jordanranz/aws-amplify-cypress-auth.git
             cd aws-amplify-cypress-auth
             awsmobile init --yes
+            yarn
             yarn start
 
 
