@@ -32,9 +32,9 @@ jobs:
             yarn
             yarn start
       - run:
-        command: |
-          cd ..
-          yarn cypress
+          command: |
+            cd ..
+            yarn cypress
 
 
       # - run: yarn run test --scope aws-amplify
