@@ -15,9 +15,9 @@ jobs:
             TERM: xterm
     steps:
       - checkout
-      - run: yarn config set workspaces-experimental true
-      - run: yarn
-      - run: yarn run bootstrap
+      # - run: yarn config set workspaces-experimental true
+      # - run: yarn
+      # - run: yarn run bootstrap
       # - run: yarn run build
       - run:
           name: "Install awsmobile cli"
@@ -28,21 +28,19 @@ jobs:
       - run: 
           name: "Clone auth test and run server"
           command: |
-            git clone git@github.com:jordanranz/aws-amplify-cypress-auth.git
+            git ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/aws-amplify-cypress-auth
             cd aws-amplify-cypress-auth
             yarn
             awsmobile configure aws $IAM_ACCESS_KEY $IAM_SECRET_KEY us-east-1
             awsmobile init --yes 9a71703c-4ae7-49ea-b904-1da5b987937b
-      - run:
-          command: |
-            cd aws-amplify-cypress-auth
-            yarn start
-          background: true
-      - run:
-          command: |
-            yarn cypress --scope aws-amplify-react
-
-
+      # - run:
+      #     command: |
+      #       cd aws-amplify-cypress-auth
+      #       yarn start
+      #     background: true
+      # - run:
+      #     command: |
+      #       yarn cypress --scope aws-amplify-react
       # - run: yarn run test --scope aws-amplify
       # - run: yarn run test --scope aws-amplify-react
       # - run: yarn run coverage
