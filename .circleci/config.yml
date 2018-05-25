@@ -13,6 +13,12 @@ jobs:
       - run: yarn
       - run: yarn run bootstrap
       - run: yarn run build
+
+      - run: git clone git@github.com:jordanranz/aws-amplify-cypress-auth.git
+      - run: cd aws-amplify-cypress-auth
+      - run: cd ..
+      - run: rm -rf aws-amplify-cypress-auth
+
       - run: yarn run test --scope aws-amplify
       - run: yarn run test --scope aws-amplify-react
       - run: yarn run coverage
