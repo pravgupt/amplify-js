@@ -4,6 +4,9 @@
 #
 version: 2
 jobs:
+  machine:
+    environment:
+      PATH: "${PATH}:${HOME}/${CIRCLE_PROJECT_REPONAME}/node_modules/.bin"
   build:
     docker:
       - image: circleci/node:8.11
@@ -19,7 +22,6 @@ jobs:
       - run: 
           command: |
             yarn global add awsmobile-cli
-            yarn global bin
             awsmobile configure
             echo $IAM_ACCESS_KEY\n
             echo $IAM_SECRET_KEY\n
