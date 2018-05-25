@@ -12,8 +12,8 @@ jobs:
       - image: circleci/node:8.11
     steps:
       - checkout
-      # - run: yarn config set workspaces-experimental true
-      # - run: yarn
+      - run: yarn config set workspaces-experimental true
+      - run: yarn
       # - run: yarn run bootstrap
       # - run: yarn run build
       - run:
