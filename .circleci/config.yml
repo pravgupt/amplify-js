@@ -32,8 +32,11 @@ jobs:
             cd aws-amplify-cypress-auth
             yarn
             awsmobile configure aws $IAM_ACCESS_KEY $IAM_SECRET_KEY us-east-1
-            awsmobile init --yes 9a71703c-4ae7-49ea-b904-1da5b987937b && yarn start &
-            cd ..
+            awsmobile init --yes 9a71703c-4ae7-49ea-b904-1da5b987937b
+            yarn start
+      
+      - run:
+          command: |
             yarn cypress --scope aws-amplify-react
 
 
