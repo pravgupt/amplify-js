@@ -24,10 +24,7 @@ jobs:
             echo 'export PATH=$(yarn global bin):$PATH' >> $BASH_ENV
             source $BASH_ENV
             yarn global add awsmobile-cli
-            # awsmobile configure
-            echo $IAM_ACCESS_KEY\n
-            echo $IAM_SECRET_KEY\n
-            # awsmobile init --yes
+      - run: awsmobile init --yes
             # yarn start
 
       # - run: yarn run test --scope aws-amplify
