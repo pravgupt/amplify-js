@@ -16,14 +16,18 @@ jobs:
       # - run: yarn
       # - run: yarn run bootstrap
       # - run: yarn run build
-
-      - run: 
+      - run:
+          name: "Install awsmobile cli"
           command: |
             echo 'export PATH=$(yarn global bin):$PATH' >> $BASH_ENV
             source $BASH_ENV
             yarn global add awsmobile-cli
+      - run: 
+          name: "Clone auth test and run server"
+          command: |
             git clone git@github.com:jordanranz/aws-amplify-cypress-auth.git
             cd aws-amplify-cypress-auth
+            ls ~/.aws
             awsmobile init --yes
             yarn
             yarn start
