@@ -27,7 +27,7 @@ jobs:
           command: |
             git clone git@github.com:jordanranz/aws-amplify-cypress-auth.git
             cd aws-amplify-cypress-auth
-            ls ~/.aws
+            awsmobile configure aws $IAM_ACCESS_KEY $IAM_SECRET_KEY us-east-1
             awsmobile init --yes
             yarn
             yarn start
