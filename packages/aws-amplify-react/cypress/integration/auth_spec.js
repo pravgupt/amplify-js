@@ -1,4 +1,4 @@
-describe('withAuthenticator HOC Sign Up', function() {
+describe('withAuthenticator Sign In', function() {
   beforeEach(function() {
     cy.visit('/')
   })
