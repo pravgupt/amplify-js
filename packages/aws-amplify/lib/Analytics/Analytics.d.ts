@@ -8,6 +8,7 @@ export default class AnalyticsClass {
     private _provider;
     private _pluggables;
     private _disabled;
+    private _autoSessionRecord;
     /**
      * Initialize Analtyics
      * @param config - Configuration of the Analytics
@@ -17,7 +18,7 @@ export default class AnalyticsClass {
      * configure Analytics
      * @param {Object} config - Configuration of the Analytics
      */
-    configure(config: any): any;
+    configure(config?: any): any;
     /**
      * add plugin into Analytics category
      * @param {Object} pluggable - an instance of the plugin

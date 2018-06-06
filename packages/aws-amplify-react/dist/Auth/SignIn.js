@@ -99,7 +99,12 @@ var SignIn = function (_AuthPiece) {
                     _this3.checkContact(user);
                 }
             }).catch(function (err) {
-                _this3.error(err);
+                if (err.code === 'UserNotConfirmedException') {
+                    logger.debug('the user is not confirmed');
+                    _this3.changeState('confirmSignUp');
+                } else {
+                    _this3.error(err);
+                }
             });
         }
     }, {

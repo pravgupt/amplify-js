@@ -48,6 +48,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * and limitations under the License.
  */
 var Common_1 = require("../../Common");
+var Platform_1 = require("../../Common/Platform");
 var Cache_1 = require("../../Cache");
 var uuid_1 = require("uuid");
 var logger = new Common_1.ConsoleLogger('AWSAnalyticsProvider');
@@ -436,18 +437,31 @@ var AWSAnalyticsProvider = /** @class */ (function () {
      * generate client context with endpoint Id and app Id provided
      */
     AWSAnalyticsProvider.prototype._generateClientContext = function () {
-        var _a = this._config, endpointId = _a.endpointId, appId = _a.appId;
-        var clientContext = {
+        var _a = this._config, endpointId = _a.endpointId, appId = _a.appId, clientInfo = _a.clientInfo;
+        var clientContext = this._config.clientContext || {};
+        var clientCtx = {
             client: {
-                client_id: endpointId
+                client_id: clientContext.clientId || endpointId,
+                app_title: clientContext.appTitle,
+                app_version_name: clientContext.appVersionName,
+                app_version_code: clientContext.appVersionCode,
+                app_package_name: clientContext.appPackageName,
+            },
+            env: {
+                platform: clientContext.platform || clientInfo.platform,
+                platform_version: clientContext.platformVersion || clientInfo.version,
+                model: clientContext.model || clientInfo.model,
+                make: clientContext.make || clientInfo.make,
+                locale: clientContext.locale
             },
             services: {
                 mobile_analytics: {
-                    app_id: appId
+                    app_id: appId,
+                    sdk_name: Platform_1.default.userAgent
                 }
             }
         };
-        return JSON.stringify(clientContext);
+        return JSON.stringify(clientCtx);
     };
     return AWSAnalyticsProvider;
 }());

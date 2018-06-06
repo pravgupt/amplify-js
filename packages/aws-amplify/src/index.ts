@@ -17,6 +17,8 @@ import Storage, { StorageClass } from './Storage';
 import API, { APIClass, graphqlOperation } from './API';
 import PubSub from './PubSub';
 import Cache from './Cache';
+import XR from './XR';
+
 import {
     ConsoleLogger as Logger,
     Hub,
@@ -25,7 +27,7 @@ import {
     Signer,
     I18n,
     Amplify,
-    ServiceWorker
+    ServiceWorker,
 } from './Common';
 
 export default Amplify;
@@ -39,7 +41,8 @@ Amplify.Cache = Cache;
 Amplify.PubSub = PubSub;
 Amplify.Logger = Logger;
 Amplify.ServiceWorker = ServiceWorker;
+Amplify.XR = XR;
 
-export { Auth, Analytics, Storage, API, PubSub, I18n, Logger, Hub, Cache, JS, ClientDevice, Signer, ServiceWorker };
+export { Auth, Analytics, Storage, API, PubSub, I18n, Logger, Hub, Cache, JS, ClientDevice, Signer, ServiceWorker, XR };
 export { AuthClass, AnalyticsClass, APIClass, StorageClass, AnalyticsProvider };
 export { graphqlOperation };

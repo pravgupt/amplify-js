@@ -51,6 +51,9 @@ var Common_1 = require("../Common");
 var AWSAnalyticsProvider_1 = require("./Providers/AWSAnalyticsProvider");
 var Auth_1 = require("../Auth");
 var logger = new Common_1.ConsoleLogger('AnalyticsClass');
+var dispatchAnalyticsEvent = function (event, data) {
+    Common_1.Hub.dispatch('analytics', { event: event, data: data }, 'Analytics');
+};
 // events buffer
 var BUFFER_SIZE = 1000;
 var MAX_SIZE_PER_FLUSH = BUFFER_SIZE * 0.1;
@@ -88,20 +91,26 @@ var AnalyticsClass = /** @class */ (function () {
      */
     AnalyticsClass.prototype.configure = function (config) {
         logger.debug('configure Analytics');
+        if (!config)
+            return this._config;
         var amplifyConfig = Common_1.Parser.parseMobilehubConfig(config);
         var conf = Object.assign({}, this._config, amplifyConfig.Analytics, config);
         var clientInfo = Common_1.ClientDevice.clientInfo();
         conf['clientInfo'] = conf['client_info'] ? conf['client_info'] : clientInfo;
-        this._config = conf;
         if (conf['disabled']) {
             this._disabled = true;
         }
+        if (conf['autoSessionRecord'] === undefined) {
+            conf['autoSessionRecord'] = true;
+        }
+        this._config = conf;
         this._pluggables.map(function (pluggable) {
             pluggable.configure(conf);
         });
         if (this._pluggables.length === 0) {
             this.addPluggable(new AWSAnalyticsProvider_1.default());
         }
+        dispatchAnalyticsEvent('configured', null);
         return conf;
     };
     /**
@@ -118,7 +127,7 @@ var AnalyticsClass = /** @class */ (function () {
                         ensureCredentails = _a.sent();
                         if (!ensureCredentails)
                             return [2 /*return*/, Promise.resolve(false)];
-                        if (pluggable) {
+                        if (pluggable && pluggable.getCategory() === 'Analytics') {
                             this._pluggables.push(pluggable);
                             config = pluggable.configure(this._config);
                             return [2 /*return*/, Promise.resolve(config)];

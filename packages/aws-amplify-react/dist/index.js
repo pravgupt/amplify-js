@@ -77,6 +77,18 @@ Object.keys(_API).forEach(function (key) {
   });
 });
 
+var _XR = require('./XR');
+
+Object.keys(_XR).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function get() {
+      return _XR[key];
+    }
+  });
+});
+
 var _AmplifyTheme = require('./AmplifyTheme');
 
 Object.defineProperty(exports, 'AmplifyTheme', {
