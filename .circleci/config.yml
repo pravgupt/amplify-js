@@ -46,6 +46,11 @@ jobs:
             awsmobile init --yes $AUTH_MOBILE_HUB_PROJECT_ID
             yarn link aws-amplify
             yarn link aws-amplify-react
+          
+      - run:
+          name: "Start test Auth server in background"
+          command: |
+            cd aws-amplify-cypress-auth
             yarn start
           background: true
       - run:
