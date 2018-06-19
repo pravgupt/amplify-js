@@ -8,6 +8,7 @@ machine:
       PATH: "${PATH}:${HOME}/${CIRCLE_PROJECT_REPONAME}/node_modules/.bin"
 
 defaults: &defaults
+  working_directory: ~/app
   docker:
     - image: cypress/base:10
       environment:
@@ -32,14 +33,16 @@ jobs:
       - run: yarn run test --scope aws-amplify-react
       - run: yarn run coverage
       - persist_to_workspace:
-          root: /root
+          root: /root/app
+          paths:
+           - node_modules
             
 
   testA:
     <<: *defaults
     steps:
       - attach_workspace:
-          at: /root
+          at: /root/app
       - run:
           name: "Link aws-amplify"
           command: |
