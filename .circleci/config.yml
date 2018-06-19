@@ -15,6 +15,11 @@ jobs:
             TERM: xterm
     steps:
       - checkout
+      - run: yarn config set workspaces-experimental true
+      - run: yarn
+      - run: yarn run bootstrap
+      - run: yarn run build
+      - run: yarn link
       - run:
           name: "Install awsmobile cli"
           command: |
@@ -33,12 +38,10 @@ jobs:
       - run:
           command: |
             cd aws-amplify-cypress-auth
+            yarn link aws-amplify
+            yarn link aws-amplify-react
             yarn start
           background: true
-      - run: yarn config set workspaces-experimental true
-      - run: yarn
-      - run: yarn run bootstrap
-      - run: yarn run build
       - run:
           command: |
             yarn cypress --scope aws-amplify-react
