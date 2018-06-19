@@ -36,7 +36,7 @@ jobs:
             source $BASH_ENV
             yarn global add awsmobile-cli
       - run: 
-          name: "Clone auth test and run server"
+          name: "Clone auth test package and awsmobile init"
           command: |
             echo "git-codecommit.us-east-1.amazonaws.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCdut7aOM5Zh16OJ+GOP75O7x5oyHKAiA1ieuySetj/hAq4VrAuZV5R2TypZJcKBaripOtTc/Sr0FOU4YvxUla40PPH8N1lbDp6Pnc4BexKsrt2kz++TqIKx5FHmUQV3mit16kxRwHey3dv030+qXBDo3WPQjm2+JLoq0XcadpnCAMCd3ChaBnDRM+51GZbuEFilpZsxUchUzl0gseC+shYOBd7TqxTlIhj/56d/YF1kq7RMZYrwBnyYdVhpLeUJCeYjyx/O6FPSezNTLiinz5jjioWZATgn+G8feL/hIsk8g+7JoIcb2muUlymdxs+8l2lS+8MXqT0q9ohT+Knhb2j" >> ~/.ssh/known_hosts
             git clone ssh://APKAJKAFJK3EYMRBMGEQ@git-codecommit.us-east-1.amazonaws.com/v1/repos/aws-amplify-cypress-auth
@@ -49,6 +49,9 @@ jobs:
             cd aws-amplify-cypress-auth
             yarn link aws-amplify
             yarn link aws-amplify-react
+      - run:
+          command: |
+            cd aws-amplify-cypress-auth
             yarn start
           background: true
       - run:
