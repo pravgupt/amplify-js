@@ -31,9 +31,15 @@ jobs:
       - run: yarn run test --scope aws-amplify
       - run: yarn run test --scope aws-amplify-react
       - run: yarn run coverage
+      - persist_to_workspace:
+          root: /root
+            
 
-
-
+  testA:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: /root
       - run:
           name: "Link aws-amplify"
           command: |
@@ -84,14 +90,11 @@ jobs:
       #         echo "Skipping deploy."
       #       fi
 
-# workflows:
-#   version: 2
-#   build_and_test:
-#     jobs:
-#       - build
-#       - testA:
-#           requires:
-#             - build
-#       - testB:
-#           requires:
-#             - build
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - testA:
+          requires:
+            - build
