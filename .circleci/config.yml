@@ -35,9 +35,7 @@ jobs:
       - persist_to_workspace:
           root: /root/app
           paths:
-           - node_modules
-            
-
+            - node_modules
   testA:
     <<: *defaults
     steps:
@@ -79,8 +77,6 @@ jobs:
       - run:
           command: |
             yarn cypress --scope aws-amplify-react
-      
-      
       # - run:
       #     name: "Publish to Amplify Package"
       #     command: |
