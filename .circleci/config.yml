@@ -57,16 +57,16 @@ jobs:
           at: ./
       - restore_cache:
           key: v1-deps-{{ .Branch }}-{{ checksum "package.json" }}
-      # - run:
-      #     name: "Link aws-amplify"
-      #     command: |
-      #       cd packages/aws-amplify
-      #       yarn link
-      # - run:
-      #     name: "Link aws-amplify-react"
-      #     command: |
-      #       cd packages/aws-amplify-react
-      #       yarn link
+      - run:
+          name: "Link aws-amplify"
+          command: |
+            cd packages/aws-amplify
+            yarn link
+      - run:
+          name: "Link aws-amplify-react"
+          command: |
+            cd packages/aws-amplify-react
+            yarn link
       - run:
           name: "Install awsmobile cli"
           command: |
@@ -83,8 +83,8 @@ jobs:
             yarn
             awsmobile configure aws $IAM_ACCESS_KEY $IAM_SECRET_KEY us-east-1
             awsmobile init --yes $AUTH_MOBILE_HUB_PROJECT_ID
-            # yarn link aws-amplify
-            # yarn link aws-amplify-react
+            yarn link aws-amplify
+            yarn link aws-amplify-react
       - run:
           name: "Start Auth test server in background"
           command: |
