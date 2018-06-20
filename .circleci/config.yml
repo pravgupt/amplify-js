@@ -52,7 +52,7 @@ jobs:
       - run:
           name: "Link aws-amplify-react"
           command: |
-            cd ~/packages/aws-amplify-react
+            cd packages/aws-amplify-react
             yarn link
       - run:
           name: "Install awsmobile cli"
