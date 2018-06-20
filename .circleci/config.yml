@@ -30,6 +30,7 @@ jobs:
           command: yarn install --frozen-lockfile
       - run: yarn run bootstrap
       - run: yarn run build
+      - run: yarn run coverage
       - save_cache:
           key: v1-deps-{{ .Branch }}-{{ checksum "package.json" }}
           paths:
@@ -48,7 +49,6 @@ jobs:
           at: ./
       - run: yarn run test --scope aws-amplify
       - run: yarn run test --scope aws-amplify-react
-      - run: yarn run coverage
   testAuth:
     <<: *defaults
     steps:
