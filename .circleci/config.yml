@@ -59,58 +59,54 @@ jobs:
           key: v1-deps
       - attach_workspace:
           at: ./
-      - run: ls -la
-      - run: ls -la ..
-      - run: ls -la ../.cache/
-      - run: ls -la ../.cache/Cypress
-      # - run:
-      #     name: "Link aws-amplify"
-      #     command: |
-      #       cd packages/aws-amplify
-      #       yarn link
-      # - run:
-      #     name: "Link aws-amplify-react"
-      #     command: |
-      #       cd packages/aws-amplify-react
-      #       yarn link
-      # - run:
-      #     name: "Install awsmobile cli"
-      #     command: |
-      #       echo 'export PATH=$(yarn global bin):$PATH' >> $BASH_ENV
-      #       source $BASH_ENV
-      #       yarn global add awsmobile-cli
-      # - run: 
-      #     name: "Clone auth test package, initialize mobilehub, and link amplify"
-      #     command: |
-      #       mkdir ~/.ssh
-      #       echo "git-codecommit.us-east-1.amazonaws.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCdut7aOM5Zh16OJ+GOP75O7x5oyHKAiA1ieuySetj/hAq4VrAuZV5R2TypZJcKBaripOtTc/Sr0FOU4YvxUla40PPH8N1lbDp6Pnc4BexKsrt2kz++TqIKx5FHmUQV3mit16kxRwHey3dv030+qXBDo3WPQjm2+JLoq0XcadpnCAMCd3ChaBnDRM+51GZbuEFilpZsxUchUzl0gseC+shYOBd7TqxTlIhj/56d/YF1kq7RMZYrwBnyYdVhpLeUJCeYjyx/O6FPSezNTLiinz5jjioWZATgn+G8feL/hIsk8g+7JoIcb2muUlymdxs+8l2lS+8MXqT0q9ohT+Knhb2j" >> ~/.ssh/known_hosts
-      #       git clone ssh://APKAJKAFJK3EYMRBMGEQ@git-codecommit.us-east-1.amazonaws.com/v1/repos/aws-amplify-cypress-auth
-      #       cd aws-amplify-cypress-auth
-      #       yarn
-      #       awsmobile configure aws $IAM_ACCESS_KEY $IAM_SECRET_KEY us-east-1
-      #       awsmobile init --yes $AUTH_MOBILE_HUB_PROJECT_ID
-      #       yarn link aws-amplify
-      #       yarn link aws-amplify-react
-      # - run:
-      #     name: "Start Auth test server in background"
-      #     command: |
-      #       cd aws-amplify-cypress-auth
-      #       yarn start
-      #     background: true
-      # - run:
-      #     command: |
-      #       yarn cypress --scope aws-amplify-react
-      # - run:
-      #     name: "Publish to Amplify Package"
-      #     command: |
-      #       if [ -z "$CIRCLE_PULL_REQUEST" ]; then
-      #         echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-      #         git config --global user.email $GITHUB_EMAIL
-      #         git config --global user.name $GITHUB_USER
-      #         yarn run publish:$CIRCLE_BRANCH
-      #       else
-      #         echo "Skipping deploy."
-      #       fi
+      - run:
+          name: "Link aws-amplify"
+          command: |
+            cd packages/aws-amplify
+            yarn link
+      - run:
+          name: "Link aws-amplify-react"
+          command: |
+            cd packages/aws-amplify-react
+            yarn link
+      - run:
+          name: "Install awsmobile cli"
+          command: |
+            echo 'export PATH=$(yarn global bin):$PATH' >> $BASH_ENV
+            source $BASH_ENV
+            yarn global add awsmobile-cli
+      - run: 
+          name: "Clone auth test package, initialize mobilehub, and link amplify"
+          command: |
+            mkdir ~/.ssh
+            echo "git-codecommit.us-east-1.amazonaws.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCdut7aOM5Zh16OJ+GOP75O7x5oyHKAiA1ieuySetj/hAq4VrAuZV5R2TypZJcKBaripOtTc/Sr0FOU4YvxUla40PPH8N1lbDp6Pnc4BexKsrt2kz++TqIKx5FHmUQV3mit16kxRwHey3dv030+qXBDo3WPQjm2+JLoq0XcadpnCAMCd3ChaBnDRM+51GZbuEFilpZsxUchUzl0gseC+shYOBd7TqxTlIhj/56d/YF1kq7RMZYrwBnyYdVhpLeUJCeYjyx/O6FPSezNTLiinz5jjioWZATgn+G8feL/hIsk8g+7JoIcb2muUlymdxs+8l2lS+8MXqT0q9ohT+Knhb2j" >> ~/.ssh/known_hosts
+            git clone ssh://APKAJKAFJK3EYMRBMGEQ@git-codecommit.us-east-1.amazonaws.com/v1/repos/aws-amplify-cypress-auth
+            cd aws-amplify-cypress-auth
+            yarn
+            awsmobile configure aws $IAM_ACCESS_KEY $IAM_SECRET_KEY us-east-1
+            awsmobile init --yes $AUTH_MOBILE_HUB_PROJECT_ID
+            yarn link aws-amplify
+            yarn link aws-amplify-react
+      - run:
+          name: "Start Auth test server in background"
+          command: |
+            cd aws-amplify-cypress-auth
+            yarn start
+          background: true
+      - run:
+          command: |
+            yarn cypress --scope aws-amplify-react
+      - run:
+          name: "Publish to Amplify Package"
+          command: |
+            if [ -z "$CIRCLE_PULL_REQUEST" ]; then
+              echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+              git config --global user.email $GITHUB_EMAIL
+              git config --global user.name $GITHUB_USER
+              yarn run publish:$CIRCLE_BRANCH
+            else
+              echo "Skipping deploy."
+            fi
 
 workflows:
   version: 2
