@@ -40,6 +40,7 @@ jobs:
             - node_modules
             - packages
             - package.json
+            - lerna.json
   testA:
     <<: *defaults
     steps:
