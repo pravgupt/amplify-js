@@ -14,20 +14,13 @@ defaults: &defaults
       environment:
           ## this enables colors in the output
           TERM: xterm
-
 jobs:
   build:
     <<: *defaults
     steps:
       - checkout
-      # - restore_cache:
-      #     key: v1-deps-{{ .Branch }}-{{ checksum "package.json" }}
-      #     key: v1-deps-{{ .Branch }}
-      #     key: v1-deps
       - run: yarn config set workspaces-experimental true
-      - run:
-          name: Install Dependencies
-          command: yarn install --frozen-lockfile
+      - run: yarn install --frozen-lockfile
       - run: yarn run bootstrap
       - run: yarn run build
       - run: yarn run coverage
@@ -42,22 +35,20 @@ jobs:
             - packages
             - package.json
             - lerna.json
-  unitTests:
+  unit_test:
     <<: *defaults
     steps:
       - attach_workspace:
           at: ./
       - run: yarn run test --scope aws-amplify
       - run: yarn run test --scope aws-amplify-react
-  testAuth:
+  integration_test_auth:
     <<: *defaults
     steps:
       - attach_workspace:
           at: ./
       - restore_cache:
           key: v1-deps-{{ .Branch }}-{{ checksum "package.json" }}
-          # key: v1-deps-{{ .Branch }}
-          # key: v1-deps
       - run:
           name: "Link aws-amplify"
           command: |
@@ -75,7 +66,7 @@ jobs:
             source $BASH_ENV
             yarn global add awsmobile-cli
       - run: 
-          name: "Clone auth test package, initialize mobilehub, and link amplify"
+          name: "Clone auth test package, initialize mobilehub via cli, and link amplify packages"
           command: |
             mkdir ~/.ssh
             echo "git-codecommit.us-east-1.amazonaws.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCdut7aOM5Zh16OJ+GOP75O7x5oyHKAiA1ieuySetj/hAq4VrAuZV5R2TypZJcKBaripOtTc/Sr0FOU4YvxUla40PPH8N1lbDp6Pnc4BexKsrt2kz++TqIKx5FHmUQV3mit16kxRwHey3dv030+qXBDo3WPQjm2+JLoq0XcadpnCAMCd3ChaBnDRM+51GZbuEFilpZsxUchUzl0gseC+shYOBd7TqxTlIhj/56d/YF1kq7RMZYrwBnyYdVhpLeUJCeYjyx/O6FPSezNTLiinz5jjioWZATgn+G8feL/hIsk8g+7JoIcb2muUlymdxs+8l2lS+8MXqT0q9ohT+Knhb2j" >> ~/.ssh/known_hosts
@@ -93,28 +84,38 @@ jobs:
             yarn start
           background: true
       - run:
+          name: "Run cypress tests for aws-amplify-react"
           command: |
             yarn cypress --scope aws-amplify-react
-      # - run:
-      #     name: "Publish to Amplify Package"
-      #     command: |
-      #       if [ -z "$CIRCLE_PULL_REQUEST" ]; then
-      #         echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-      #         git config --global user.email $GITHUB_EMAIL
-      #         git config --global user.name $GITHUB_USER
-      #         yarn run publish:$CIRCLE_BRANCH
-      #       else
-      #         echo "Skipping deploy."
-      #       fi
 
+  deploy:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ./
+      - run:
+          name: "Publish to Amplify Package"
+          command: |
+            if [ -z "$CIRCLE_PULL_REQUEST" ]; then
+              echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+              git config --global user.email $GITHUB_EMAIL
+              git config --global user.name $GITHUB_USER
+              yarn run publish:$CIRCLE_BRANCH
+            else
+              echo "Skipping deploy."
+            fi
 workflows:
   version: 2
-  build_and_test:
+  build_test_deploy:
     jobs:
       - build
-      - unitTests:
+      - unit_test:
           requires:
             - build
-      - testAuth:
+      - integration_test_auth:
           requires:
             - build
+      - deploy:
+          requires:
+            - unit_test
+            - integration_test_auth
