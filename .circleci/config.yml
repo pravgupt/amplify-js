@@ -31,12 +31,11 @@ jobs:
           keys:
             - v1-npm-deps-{{ checksum "yarn.lock" }}
             - v1-npm-deps
-      - run: npm install
+      - run: yarn
       - save_cache:
           key: v1-npm-deps-{{ checksum "yarn.lock" }}
           paths:
             - node_modules
-      - run: yarn
       - run: yarn run bootstrap
       # - run: yarn run build
       # - run: yarn run test --scope aws-amplify
