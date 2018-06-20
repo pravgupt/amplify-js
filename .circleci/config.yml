@@ -36,6 +36,8 @@ jobs:
           root: /root/app
           paths:
             - node_modules
+            - packages
+            - .ssh
   testA:
     <<: *defaults
     steps:
