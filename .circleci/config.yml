@@ -39,11 +39,13 @@ jobs:
           paths:
             - node_modules
             - packages
+            - package.json
   testA:
     <<: *defaults
     steps:
       - attach_workspace:
           at: ./
+      - run: ls -la
       - run:
           name: "Link aws-amplify"
           command: |
