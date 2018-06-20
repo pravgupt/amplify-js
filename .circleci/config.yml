@@ -29,13 +29,15 @@ jobs:
       - run: yarn config set workspaces-experimental true
       - restore_cache:
           keys:
-            - v1-npm-deps-{{ checksum "yarn.lock" }}
-            - v1-npm-deps
-      - run: yarn
+            - yarn-packages-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            - yarn-packages-{{ .Branch }}
+            - yarn-packages
+      - run: yarn install
       - save_cache:
-          key: v1-npm-deps-{{ checksum "yarn.lock" }}
+          key: yarn-packages-{{ .Branch }}-{{ checksum "yarn.lock" }}
           paths:
             - node_modules
+            - ~/.cache
       - run: yarn run bootstrap
       # - run: yarn run build
       # - run: yarn run test --scope aws-amplify
