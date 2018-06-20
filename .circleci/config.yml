@@ -14,6 +14,7 @@ defaults: &defaults
       environment:
           ## this enables colors in the output
           TERM: xterm
+
 jobs:
   build:
     <<: *defaults
@@ -70,7 +71,7 @@ jobs:
           command: |
             mkdir ~/.ssh
             echo $SSH_HOST_PUBLIC_KEY >> ~/.ssh/known_hosts
-            git clone ssh://APKAJKAFJK3EYMRBMGEQ@git-codecommit.us-east-1.amazonaws.com/v1/repos/aws-amplify-cypress-auth
+            git clone $AUTH_CLONE_URL
             cd aws-amplify-cypress-auth
             yarn
             awsmobile configure aws $IAM_ACCESS_KEY $IAM_SECRET_KEY us-east-1
@@ -87,12 +88,8 @@ jobs:
           name: "Run cypress tests for aws-amplify-react"
           command: |
             yarn cypress --scope aws-amplify-react
-
   deploy:
     <<: *defaults
-    branches:
-      only:
-        - master
     steps:
       - attach_workspace:
           at: ./
@@ -107,6 +104,7 @@ jobs:
             else
               echo "Skipping deploy."
             fi
+
 workflows:
   version: 2
   build_test_deploy:
@@ -119,6 +117,10 @@ workflows:
           requires:
             - build
       - deploy:
+          filters:
+            branches:
+              only:
+                - master
           requires:
             - unit_test
             - integration_test_auth
