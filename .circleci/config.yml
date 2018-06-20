@@ -18,14 +18,8 @@ defaults: &defaults
 jobs:
   build:
     <<: *defaults
-    # docker:
-    #   - image: cypress/base:10
-    #     environment:
-    #         ## this enables colors in the output
-    #         TERM: xterm
     steps:
       - checkout
-      
       - restore_cache:
           key: v1-deps-{{ .Branch }}-{{ checksum "package.json" }}
           key: v1-deps-{{ .Branch }}
@@ -39,11 +33,7 @@ jobs:
       - save_cache:
           key: v1-deps-{{ .Branch }}-{{ checksum "package.json" }}
           paths:
-            - ~/.cache  ## cache both yarn and Cypress!
-      
-      # - run: yarn run test --scope aws-amplify
-      # - run: yarn run test --scope aws-amplify-react
-      # - run: yarn run coverage
+            - ~/.cache  ## cache both yarn and Cypress
       - persist_to_workspace:
           root: .
           paths:
@@ -51,6 +41,12 @@ jobs:
             - packages
             - package.json
             - lerna.json
+  unitTests:
+    <<: *defaults
+    steps:
+      - run: yarn run test --scope aws-amplify
+      - run: yarn run test --scope aws-amplify-react
+      - run: yarn run coverage
   testAuth:
     <<: *defaults
     steps:
@@ -60,11 +56,6 @@ jobs:
           key: v1-deps-{{ .Branch }}-{{ checksum "package.json" }}
           key: v1-deps-{{ .Branch }}
           key: v1-deps
-      - run: ls -la
-      - run: ls -la packages
-      - run: ls -la packages/aws-amplify
-      - run: ls -la packages/aws-amplify/lib
-      - run: ls -la packages/aws-amplify/lib/API
       - run:
           name: "Link aws-amplify"
           command: |
@@ -119,6 +110,9 @@ workflows:
   build_and_test:
     jobs:
       - build
+      - unitTests:
+          requires:
+            - build
       - testAuth:
           requires:
             - build
