@@ -24,6 +24,9 @@ jobs:
     #         ## this enables colors in the output
     #         TERM: xterm
     steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "a6:9c:7d:bc:35:f5:d4:5f:8b:ba:6f:c8:bc:d4:83:84"
       - checkout
       - run: pwd
       - run: yarn config set workspaces-experimental true
