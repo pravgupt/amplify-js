@@ -25,19 +25,20 @@ jobs:
     #         TERM: xterm
     steps:
       - checkout
-      - run: yarn config set workspaces-experimental true
+      
       - restore_cache:
           key: v1-deps-{{ .Branch }}-{{ checksum "package.json" }}
           key: v1-deps-{{ .Branch }}
           key: v1-deps
+      - run: yarn config set workspaces-experimental true
       - run:
           name: Install Dependencies
           command: yarn install --frozen-lockfile
+      - run: yarn run bootstrap
       - save_cache:
           key: v1-deps-{{ .Branch }}-{{ checksum "package.json" }}
           paths:
             - ~/.cache  ## cache both yarn and Cypress!
-      - run: yarn run bootstrap
       # - run: yarn run build
       # - run: yarn run test --scope aws-amplify
       # - run: yarn run test --scope aws-amplify-react
