@@ -30,20 +30,19 @@ jobs:
       - run: yarn
       - run: yarn run bootstrap
       - run: yarn run build
-      - run: yarn run test --scope aws-amplify
-      - run: yarn run test --scope aws-amplify-react
-      - run: yarn run coverage
+      # - run: yarn run test --scope aws-amplify
+      # - run: yarn run test --scope aws-amplify-react
+      # - run: yarn run coverage
       - persist_to_workspace:
-          root: /root/app
+          root: .
           paths:
             - node_modules
             - packages
-            - .ssh
   testA:
     <<: *defaults
     steps:
       - attach_workspace:
-          at: /root/app
+          at: ./
       - run: pwd
       #     name: "Link aws-amplify"
       #     command: |
@@ -63,7 +62,7 @@ jobs:
       - run: 
           name: "Clone auth test package, initialize mobilehub, and link amplify"
           command: |
-            echo "git-codecommit.us-east-1.amazonaws.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCdut7aOM5Zh16OJ+GOP75O7x5oyHKAiA1ieuySetj/hAq4VrAuZV5R2TypZJcKBaripOtTc/Sr0FOU4YvxUla40PPH8N1lbDp6Pnc4BexKsrt2kz++TqIKx5FHmUQV3mit16kxRwHey3dv030+qXBDo3WPQjm2+JLoq0XcadpnCAMCd3ChaBnDRM+51GZbuEFilpZsxUchUzl0gseC+shYOBd7TqxTlIhj/56d/YF1kq7RMZYrwBnyYdVhpLeUJCeYjyx/O6FPSezNTLiinz5jjioWZATgn+G8feL/hIsk8g+7JoIcb2muUlymdxs+8l2lS+8MXqT0q9ohT+Knhb2j" >> ~/.ssh/known_hosts
+            echo "git-codecommit.us-east-1.amazonaws.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCdut7aOM5Zh16OJ+GOP75O7x5oyHKAiA1ieuySetj/hAq4VrAuZV5R2TypZJcKBaripOtTc/Sr0FOU4YvxUla40PPH8N1lbDp6Pnc4BexKsrt2kz++TqIKx5FHmUQV3mit16kxRwHey3dv030+qXBDo3WPQjm2+JLoq0XcadpnCAMCd3ChaBnDRM+51GZbuEFilpZsxUchUzl0gseC+shYOBd7TqxTlIhj/56d/YF1kq7RMZYrwBnyYdVhpLeUJCeYjyx/O6FPSezNTLiinz5jjioWZATgn+G8feL/hIsk8g+7JoIcb2muUlymdxs+8l2lS+8MXqT0q9ohT+Knhb2j" >> /root/app/.ssh/known_hosts
             git clone ssh://APKAJKAFJK3EYMRBMGEQ@git-codecommit.us-east-1.amazonaws.com/v1/repos/aws-amplify-cypress-auth
             cd aws-amplify-cypress-auth
             yarn
