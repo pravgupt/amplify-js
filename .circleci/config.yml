@@ -53,6 +53,10 @@ jobs:
   testA:
     <<: *defaults
     steps:
+      - restore_cache:
+          key: v1-deps-{{ .Branch }}-{{ checksum "package.json" }}
+          key: v1-deps-{{ .Branch }}
+          key: v1-deps
       - attach_workspace:
           at: ./
       - run: ls -la
