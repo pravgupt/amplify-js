@@ -41,16 +41,16 @@ jobs:
     steps:
       - attach_workspace:
           at: /root/app
-      - run:
-          name: "Link aws-amplify"
-          command: |
-            cd packages/aws-amplify
-            yarn link
-      - run:
-          name: "Link aws-amplify-react"
-          command: |
-            cd packages/aws-amplify-react
-            yarn link
+      - run: pwd
+      #     name: "Link aws-amplify"
+      #     command: |
+      #       cd packages/aws-amplify
+      #       yarn link
+      # - run:
+      #     name: "Link aws-amplify-react"
+      #     command: |
+      #       cd packages/aws-amplify-react
+      #       yarn link
       - run:
           name: "Install awsmobile cli"
           command: |
