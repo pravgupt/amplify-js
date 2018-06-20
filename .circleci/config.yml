@@ -56,7 +56,7 @@ jobs:
       #       yarn link
       - add_ssh_keys:
           fingerprints:
-            - "a6:9c:7d:bc:35:f5:d4:5f:8b:ba:6f:c8:bc:d4:83:84"
+            - "7f:3a:cb:45:21:06:5f:9f:47:39:23:99:40:ba:0c:55"
       - run:
           name: "Install awsmobile cli"
           command: |
