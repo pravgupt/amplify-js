@@ -27,9 +27,17 @@ jobs:
       - checkout
       - run: pwd
       - run: yarn config set workspaces-experimental true
+      - restore_cache:
+          keys:
+            - v1-npm-deps-{{ checksum "package.json" }}
+            - v1-npm-deps
+      - run: npm install
+      - save_cache:
+          key: v1-npm-deps-{{ checksum "package.json" }}
+          paths:
+            - node_modules
       - run: yarn
       - run: yarn run bootstrap
-      - run: ssh-keyscan git-codecommit.us-east-1.amazonaws.com >> ~/.ssh/known_hosts
       # - run: yarn run build
       # - run: yarn run test --scope aws-amplify
       # - run: yarn run test --scope aws-amplify-react
