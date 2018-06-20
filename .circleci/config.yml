@@ -20,10 +20,10 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      - restore_cache:
-          key: v1-deps-{{ .Branch }}-{{ checksum "package.json" }}
-          key: v1-deps-{{ .Branch }}
-          key: v1-deps
+      # - restore_cache:
+      #     key: v1-deps-{{ .Branch }}-{{ checksum "package.json" }}
+      #     key: v1-deps-{{ .Branch }}
+      #     key: v1-deps
       - run: yarn config set workspaces-experimental true
       - run:
           name: Install Dependencies
@@ -44,6 +44,8 @@ jobs:
   unitTests:
     <<: *defaults
     steps:
+      - attach_workspace:
+          at: ./
       - run: yarn run test --scope aws-amplify
       - run: yarn run test --scope aws-amplify-react
       - run: yarn run coverage
@@ -54,8 +56,8 @@ jobs:
           at: ./
       - restore_cache:
           key: v1-deps-{{ .Branch }}-{{ checksum "package.json" }}
-          key: v1-deps-{{ .Branch }}
-          key: v1-deps
+          # key: v1-deps-{{ .Branch }}
+          # key: v1-deps
       - run:
           name: "Link aws-amplify"
           command: |
