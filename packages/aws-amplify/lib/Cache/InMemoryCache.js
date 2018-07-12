@@ -82,6 +82,9 @@ var InMemoryCache = /** @class */ (function (_super) {
         _this.cacheList = [];
         _this.curSizeInBytes = 0;
         _this.maxPriority = 5;
+        _this.getItem = _this.getItem.bind(_this);
+        _this.setItem = _this.setItem.bind(_this);
+        _this.removeItem = _this.removeItem.bind(_this);
         // initialize list for every priority
         for (var i = 0; i < _this.maxPriority; i += 1) {
             _this.cacheList[i] = new Utils_1.CacheList();

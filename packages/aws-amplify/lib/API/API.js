@@ -74,7 +74,7 @@ exports.graphqlOperation = function (query, variables) {
  */
 var APIClass = /** @class */ (function () {
     /**
-     * Initialize Storage with AWS configurations
+     * Initialize Storage with AWS configuration
      * @param {Object} options - Configuration object for storage
      */
     function APIClass(options) {

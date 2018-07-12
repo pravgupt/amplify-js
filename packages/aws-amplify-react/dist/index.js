@@ -89,6 +89,18 @@ Object.keys(_XR).forEach(function (key) {
   });
 });
 
+var _Interactions = require('./Interactions');
+
+Object.keys(_Interactions).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function get() {
+      return _Interactions[key];
+    }
+  });
+});
+
 var _AmplifyTheme = require('./AmplifyTheme');
 
 Object.defineProperty(exports, 'AmplifyTheme', {

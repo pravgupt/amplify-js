@@ -1,12 +1,13 @@
-import Analytics, { AnalyticsClass, AnalyticsProvider } from './Analytics';
+import Analytics, { AnalyticsClass, AnalyticsProvider, AWSPinpointProvider, AWSKinesisProvider } from './Analytics';
 import Auth, { AuthClass } from './Auth';
 import Storage, { StorageClass } from './Storage';
 import API, { APIClass, graphqlOperation } from './API';
-import PubSub from './PubSub';
+import PubSub, { PubSubClass } from './PubSub';
 import Cache from './Cache';
 import XR from './XR';
+import Interactions, { InteractionsClass } from './Interactions';
 import { ConsoleLogger as Logger, Hub, JS, ClientDevice, Signer, I18n, Amplify, ServiceWorker } from './Common';
 export default Amplify;
-export { Auth, Analytics, Storage, API, PubSub, I18n, Logger, Hub, Cache, JS, ClientDevice, Signer, ServiceWorker, XR };
-export { AuthClass, AnalyticsClass, APIClass, StorageClass, AnalyticsProvider };
+export { Auth, Analytics, Storage, API, PubSub, I18n, Logger, Hub, Cache, JS, ClientDevice, Signer, ServiceWorker, Interactions, XR };
+export { AuthClass, AnalyticsClass, APIClass, StorageClass, PubSubClass, InteractionsClass, AnalyticsProvider, AWSPinpointProvider, AWSKinesisProvider };
 export { graphqlOperation };

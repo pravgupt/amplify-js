@@ -4,7 +4,21 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _classCallCheck2 = require('babel-runtime/helpers/classCallCheck');
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = require('babel-runtime/helpers/createClass');
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+var _possibleConstructorReturn2 = require('babel-runtime/helpers/possibleConstructorReturn');
+
+var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+var _inherits2 = require('babel-runtime/helpers/inherits');
+
+var _inherits3 = _interopRequireDefault(_inherits2);
 
 var _react = require('react');
 
@@ -24,42 +38,51 @@ var _AmplifyUI = require('../AmplifyUI');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /*
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Copyright 2017-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * the License. A copy of the License is located at
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *     http://aws.amazon.com/apache2.0/
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * and limitations under the License.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
-
-var logger = new _awsAmplify.Logger('RequireNewPassword');
+var logger = new _awsAmplify.Logger('RequireNewPassword'); /*
+                                                            * Copyright 2017-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+                                                            *
+                                                            * Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with
+                                                            * the License. A copy of the License is located at
+                                                            *
+                                                            *     http://aws.amazon.com/apache2.0/
+                                                            *
+                                                            * or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+                                                            * CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
+                                                            * and limitations under the License.
+                                                            */
 
 var RequireNewPassword = function (_AuthPiece) {
-    _inherits(RequireNewPassword, _AuthPiece);
+    (0, _inherits3.default)(RequireNewPassword, _AuthPiece);
 
     function RequireNewPassword(props) {
-        _classCallCheck(this, RequireNewPassword);
+        (0, _classCallCheck3.default)(this, RequireNewPassword);
 
-        var _this = _possibleConstructorReturn(this, (RequireNewPassword.__proto__ || Object.getPrototypeOf(RequireNewPassword)).call(this, props));
+        var _this = (0, _possibleConstructorReturn3.default)(this, (RequireNewPassword.__proto__ || Object.getPrototypeOf(RequireNewPassword)).call(this, props));
 
         _this._validAuthStates = ['requireNewPassword'];
         _this.change = _this.change.bind(_this);
+        _this.checkContact = _this.checkContact.bind(_this);
         return _this;
     }
 
-    _createClass(RequireNewPassword, [{
+    (0, _createClass3.default)(RequireNewPassword, [{
+        key: 'checkContact',
+        value: function checkContact(user) {
+            var _this2 = this;
+
+            _awsAmplify.Auth.verifiedContact(user).then(function (data) {
+                if (!_awsAmplify.JS.isEmpty(data.verified)) {
+                    _this2.changeState('signedIn', user);
+                } else {
+                    user = Object.assign(user, data);
+                    _this2.changeState('verifyContact', user);
+                }
+            });
+        }
+    }, {
         key: 'change',
         value: function change() {
-            var _this2 = this;
+            var _this3 = this;
 
             var user = this.props.authData;
             var password = this.inputs.password;
@@ -68,21 +91,21 @@ var RequireNewPassword = function (_AuthPiece) {
             _awsAmplify.Auth.completeNewPassword(user, password, requiredAttributes).then(function (user) {
                 logger.debug('complete new password', user);
                 if (user.challengeName === 'SMS_MFA') {
-                    _this2.changeState('confirmSignIn', user);
+                    _this3.changeState('confirmSignIn', user);
                 } else if (user.challengeName === 'MFA_SETUP') {
                     logger.debug('TOTP setup', user.challengeParam);
-                    _this2.changeState('TOTPSetup', user);
+                    _this3.changeState('TOTPSetup', user);
                 } else {
-                    _this2.changeState('signedIn', user);
+                    _this3.checkContact(user);
                 }
             }).catch(function (err) {
-                return _this2.error(err);
+                return _this3.error(err);
             });
         }
     }, {
         key: 'showComponent',
         value: function showComponent(theme) {
-            var _this3 = this;
+            var _this4 = this;
 
             var hide = this.props.hide;
 
@@ -122,7 +145,7 @@ var RequireNewPassword = function (_AuthPiece) {
                     _react2.default.createElement(
                         _AmplifyUI.Link,
                         { theme: theme, onClick: function onClick() {
-                                return _this3.changeState('signIn');
+                                return _this4.changeState('signIn');
                             } },
                         _awsAmplify.I18n.get('Back to Sign In')
                     )
@@ -130,7 +153,6 @@ var RequireNewPassword = function (_AuthPiece) {
             );
         }
     }]);
-
     return RequireNewPassword;
 }(_AuthPiece3.default);
 

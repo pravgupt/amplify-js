@@ -4,7 +4,21 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _classCallCheck2 = require('babel-runtime/helpers/classCallCheck');
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = require('babel-runtime/helpers/createClass');
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+var _possibleConstructorReturn2 = require('babel-runtime/helpers/possibleConstructorReturn');
+
+var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+var _inherits2 = require('babel-runtime/helpers/inherits');
+
+var _inherits3 = _interopRequireDefault(_inherits2);
 
 var _react = require('react');
 
@@ -24,32 +38,26 @@ var _AmplifyTheme2 = _interopRequireDefault(_AmplifyTheme);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /*
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Copyright 2017-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * the License. A copy of the License is located at
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *     http://aws.amazon.com/apache2.0/
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * and limitations under the License.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
-
-var logger = new _awsAmplify.Logger('Greetings');
+var logger = new _awsAmplify.Logger('Greetings'); /*
+                                                   * Copyright 2017-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+                                                   *
+                                                   * Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with
+                                                   * the License. A copy of the License is located at
+                                                   *
+                                                   *     http://aws.amazon.com/apache2.0/
+                                                   *
+                                                   * or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+                                                   * CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
+                                                   * and limitations under the License.
+                                                   */
 
 var Greetings = function (_AuthPiece) {
-    _inherits(Greetings, _AuthPiece);
+    (0, _inherits3.default)(Greetings, _AuthPiece);
 
     function Greetings(props) {
-        _classCallCheck(this, Greetings);
+        (0, _classCallCheck3.default)(this, Greetings);
 
-        var _this = _possibleConstructorReturn(this, (Greetings.__proto__ || Object.getPrototypeOf(Greetings)).call(this, props));
+        var _this = (0, _possibleConstructorReturn3.default)(this, (Greetings.__proto__ || Object.getPrototypeOf(Greetings)).call(this, props));
 
         _this.signOut = _this.signOut.bind(_this);
         _this.googleSignOut = _this.googleSignOut.bind(_this);
@@ -66,7 +74,7 @@ var Greetings = function (_AuthPiece) {
         return _this;
     }
 
-    _createClass(Greetings, [{
+    (0, _createClass3.default)(Greetings, [{
         key: 'componentDidMount',
         value: function componentDidMount() {
             this._isMounted = true;
@@ -166,7 +174,7 @@ var Greetings = function (_AuthPiece) {
                 payload = capsule.payload,
                 source = capsule.source;
 
-            if (channel === 'auth') {
+            if (channel === 'auth' && (payload.event === 'configured' || payload.event === 'cognitoHostedUI')) {
                 this.checkUser();
             }
         }
@@ -253,7 +261,6 @@ var Greetings = function (_AuthPiece) {
             );
         }
     }]);
-
     return Greetings;
 }(_AuthPiece3.default);
 

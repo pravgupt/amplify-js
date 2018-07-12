@@ -19,6 +19,7 @@ export interface AuthOptions {
     cookieStorage?: ICookieStorageData;
     oauth?: OAuth;
     refreshHandlers?: object;
+    authenticationFlowType?: string;
 }
 /**
 * Details for multi-factor authentication
@@ -42,4 +43,7 @@ export interface OAuth {
     redirectSignOut: string;
     responseType: string;
     options?: object;
+}
+export interface ConfirmSignUpOptions {
+    forceAliasCreation?: boolean;
 }

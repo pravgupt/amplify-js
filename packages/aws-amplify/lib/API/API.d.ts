@@ -1,4 +1,3 @@
-/// <reference types="zen-observable" />
 import * as Observable from 'zen-observable';
 import { GraphQLOptions, GraphQLResult } from './types';
 export declare const graphqlOperation: (query: any, variables?: {}) => {
@@ -15,7 +14,7 @@ export default class APIClass {
     private _options;
     private _api;
     /**
-     * Initialize Storage with AWS configurations
+     * Initialize Storage with AWS configuration
      * @param {Object} options - Configuration object for storage
      */
     constructor(options: any);

@@ -77,6 +77,9 @@ var AsyncStorageCache = /** @class */ (function (_super) {
         var _this = this;
         var cache_config = config ? Object.assign({}, CacheUtils_1.defaultConfig, config) : CacheUtils_1.defaultConfig;
         _this = _super.call(this, cache_config) || this;
+        _this.getItem = _this.getItem.bind(_this);
+        _this.setItem = _this.setItem.bind(_this);
+        _this.removeItem = _this.removeItem.bind(_this);
         logger.debug('Using AsyncStorageCache');
         return _this;
     }

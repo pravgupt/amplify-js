@@ -274,7 +274,7 @@
 
 		// Find other tab classes in page and trigger click respectively
 		// Without propogating
-		$('li.tab-link.' + tab_id).not ('.current').trigger('click',[true]);
+		// $('li.tab-link.' + tab_id).not ('.current').trigger('click',[true]);
 
 	});
 
@@ -298,22 +298,56 @@
 	// Handle click for notification bar
 	$( 	'div.row.notification-bar a' )
 		.click( function( event ) {
-			Cookies.set('notificationStatus', 'hidden', { expires: 15 } );
+			Cookies.set('notificationMessage_LastReceived', new String( new Date() ) );
+			Cookies.set('notificationStatus', 'none');
 			$( 'div.row.notification-bar' ).hide();
 
-			if ( ! this.className === 'link-button' ) {
+			if ( this.className == 'link-button' ) {
+				// go to link
+			} else {
 				return false;
 			}
 		}
 	);
 
-	var showNotificationBar = function () {
-		if ( !Cookies.get('notificationStatus', 'hidden') ) {
+	var showNotificationBar = function ( messageDate ) {
+
+		var lastMessageReceived;
+		
+		if (Cookies.get('notificationMessage_LastReceived')) {
+			lastMessageReceived = new Date( Cookies.get('notificationMessage_LastReceived'));
+		} else {
+			lastMessageReceived = new Date('January 1, 2017 12:00:00') ;
+		} 
+		
+		// new message reveived
+		if ( messageDate.getTime() > lastMessageReceived.getTime() ){
 			$( 'div.row.notification-bar' ).show();
+			Cookies.set('notificationStatus', 'received');
+		} else {
+			// do nothing
 		}
+
 	}
 
-	showNotificationBar();
+	// When the last message is received. Typicaly the announcement time
+	showNotificationBar( new Date('June 26, 2018 11:42:00') );
 
 }( jQuery ) );
 
+	/**
+	* Function that tracks a click on an outbound link in Analytics.
+	* This function takes a valid URL string as an argument, and uses that URL string
+	* as the event label. Setting the transport method to 'beacon' lets the hit be sent
+	* using 'navigator.sendBeacon' in browser that support it.
+	*/
+	var trackOutboundLink = function(url) {
+		gtag('event', 'click', {
+		'event_category': 'outbound',
+		'event_label': url,
+		'transport_type': 'beacon',
+		'event_callback': function(){document.location = url;}
+		});
+
+		return false;
+	}

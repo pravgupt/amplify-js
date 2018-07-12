@@ -5,9 +5,33 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.GoogleButton = undefined;
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends2 = require('babel-runtime/helpers/extends');
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _extends3 = _interopRequireDefault(_extends2);
+
+var _regenerator = require('babel-runtime/regenerator');
+
+var _regenerator2 = _interopRequireDefault(_regenerator);
+
+var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');
+
+var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
+
+var _classCallCheck2 = require('babel-runtime/helpers/classCallCheck');
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = require('babel-runtime/helpers/createClass');
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+var _possibleConstructorReturn2 = require('babel-runtime/helpers/possibleConstructorReturn');
+
+var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+var _inherits2 = require('babel-runtime/helpers/inherits');
+
+var _inherits3 = _interopRequireDefault(_inherits2);
 
 exports.default = withGoogle;
 
@@ -25,22 +49,16 @@ var _AmplifyUI = require('../../AmplifyUI');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
 var logger = new _awsAmplify.Logger('withGoogle');
 
 function withGoogle(Comp) {
     return function (_Component) {
-        _inherits(_class, _Component);
+        (0, _inherits3.default)(_class, _Component);
 
         function _class(props) {
-            _classCallCheck(this, _class);
+            (0, _classCallCheck3.default)(this, _class);
 
-            var _this = _possibleConstructorReturn(this, (_class.__proto__ || Object.getPrototypeOf(_class)).call(this, props));
+            var _this = (0, _possibleConstructorReturn3.default)(this, (_class.__proto__ || Object.getPrototypeOf(_class)).call(this, props));
 
             _this.initGapi = _this.initGapi.bind(_this);
             _this.signIn = _this.signIn.bind(_this);
@@ -50,7 +68,7 @@ function withGoogle(Comp) {
             return _this;
         }
 
-        _createClass(_class, [{
+        (0, _createClass3.default)(_class, [{
             key: 'signIn',
             value: function signIn() {
                 var _this2 = this;
@@ -66,25 +84,50 @@ function withGoogle(Comp) {
             }
         }, {
             key: 'federatedSignIn',
-            value: function federatedSignIn(googleUser) {
-                var _googleUser$getAuthRe = googleUser.getAuthResponse(),
-                    id_token = _googleUser$getAuthRe.id_token,
-                    expires_at = _googleUser$getAuthRe.expires_at;
+            value: function () {
+                var _ref = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee(googleUser) {
+                    var _googleUser$getAuthRe, id_token, expires_at, profile, user, onStateChange;
 
-                var profile = googleUser.getBasicProfile();
-                var user = {
-                    email: profile.getEmail(),
-                    name: profile.getName()
-                };
+                    return _regenerator2.default.wrap(function _callee$(_context) {
+                        while (1) {
+                            switch (_context.prev = _context.next) {
+                                case 0:
+                                    _googleUser$getAuthRe = googleUser.getAuthResponse(), id_token = _googleUser$getAuthRe.id_token, expires_at = _googleUser$getAuthRe.expires_at;
+                                    profile = googleUser.getBasicProfile();
+                                    user = {
+                                        email: profile.getEmail(),
+                                        name: profile.getName()
+                                    };
+                                    onStateChange = this.props.onStateChange;
+                                    _context.next = 6;
+                                    return _awsAmplify.Auth.federatedSignIn('google', { token: id_token, expires_at: expires_at }, user);
 
-                var onStateChange = this.props.onStateChange;
+                                case 6:
+                                    _context.next = 8;
+                                    return _awsAmplify.Auth.currentAuthenticatedUser();
 
-                return _awsAmplify.Auth.federatedSignIn('google', { token: id_token, expires_at: expires_at }, user).then(function (credentials) {
-                    if (onStateChange) {
-                        onStateChange('signedIn');
-                    }
-                });
-            }
+                                case 8:
+                                    user = _context.sent;
+
+
+                                    if (onStateChange) {
+                                        onStateChange('signedIn', user);
+                                    }
+
+                                case 10:
+                                case 'end':
+                                    return _context.stop();
+                            }
+                        }
+                    }, _callee, this);
+                }));
+
+                function federatedSignIn(_x) {
+                    return _ref.apply(this, arguments);
+                }
+
+                return federatedSignIn;
+            }()
         }, {
             key: 'componentDidMount',
             value: function componentDidMount() {
@@ -121,10 +164,9 @@ function withGoogle(Comp) {
             key: 'render',
             value: function render() {
                 var ga = window.gapi && window.gapi.auth2 ? window.gapi.auth2.getAuthInstance() : null;
-                return _react2.default.createElement(Comp, _extends({}, this.props, { ga: ga, googleSignIn: this.signIn }));
+                return _react2.default.createElement(Comp, (0, _extends3.default)({}, this.props, { ga: ga, googleSignIn: this.signIn }));
             }
         }]);
-
         return _class;
     }(_react.Component);
 }

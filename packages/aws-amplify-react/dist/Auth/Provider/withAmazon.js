@@ -5,9 +5,25 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.AmazonButton = undefined;
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends2 = require('babel-runtime/helpers/extends');
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _extends3 = _interopRequireDefault(_extends2);
+
+var _classCallCheck2 = require('babel-runtime/helpers/classCallCheck');
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = require('babel-runtime/helpers/createClass');
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+var _possibleConstructorReturn2 = require('babel-runtime/helpers/possibleConstructorReturn');
+
+var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+var _inherits2 = require('babel-runtime/helpers/inherits');
+
+var _inherits3 = _interopRequireDefault(_inherits2);
 
 exports.default = withAmazon;
 
@@ -25,22 +41,16 @@ var _AmplifyUI = require('../../AmplifyUI');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
 var logger = new _awsAmplify.Logger('withAmazon');
 
 function withAmazon(Comp) {
     return function (_Component) {
-        _inherits(_class, _Component);
+        (0, _inherits3.default)(_class, _Component);
 
         function _class(props) {
-            _classCallCheck(this, _class);
+            (0, _classCallCheck3.default)(this, _class);
 
-            var _this = _possibleConstructorReturn(this, (_class.__proto__ || Object.getPrototypeOf(_class)).call(this, props));
+            var _this = (0, _possibleConstructorReturn3.default)(this, (_class.__proto__ || Object.getPrototypeOf(_class)).call(this, props));
 
             _this.initAmazon = _this.initAmazon.bind(_this);
             _this.signIn = _this.signIn.bind(_this);
@@ -50,7 +60,7 @@ function withAmazon(Comp) {
             return _this;
         }
 
-        _createClass(_class, [{
+        (0, _createClass3.default)(_class, [{
             key: 'signIn',
             value: function signIn() {
                 var _this2 = this;
@@ -91,10 +101,10 @@ function withAmazon(Comp) {
                     };
 
                     _awsAmplify.Auth.federatedSignIn('amazon', { token: access_token, expires_at: expires_at }, user).then(function (credentials) {
-                        logger.debug('getting credentials');
-                        logger.debug(credentials);
+                        return _awsAmplify.Auth.currentAuthenticatedUser();
+                    }).then(function (authUser) {
                         if (onStateChange) {
-                            onStateChange('signedIn');
+                            onStateChange('signedIn', authUser);
                         }
                     });
                 });
@@ -128,10 +138,9 @@ function withAmazon(Comp) {
             key: 'render',
             value: function render() {
                 var amz = window.amazon;
-                return _react2.default.createElement(Comp, _extends({}, this.props, { amz: amz, amazonSignIn: this.signIn }));
+                return _react2.default.createElement(Comp, (0, _extends3.default)({}, this.props, { amz: amz, amazonSignIn: this.signIn }));
             }
         }]);
-
         return _class;
     }(_react.Component);
 }

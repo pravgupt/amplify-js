@@ -69,7 +69,7 @@ var Common_1 = require("../Common");
 var Auth_1 = require("../Auth");
 var axios_1 = require("axios");
 var Platform_1 = require("../Common/Platform");
-var logger = new Common_1.ConsoleLogger('RestClient'), url = require('url');
+var logger = new Common_1.ConsoleLogger('RestClient'), urlLib = require('url');
 /**
 * HTTP Client for REST requests. Send and receive JSON data.
 * Sign request with AWS credentials if available
@@ -113,9 +113,9 @@ var RestClient = /** @class */ (function () {
     RestClient.prototype.ajax = function (url, method, init) {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
-            var parsed_url, params, libraryHeaders, userAgent, extraParams, isAllResponse, custom_header, _a;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            var parsed_url, params, libraryHeaders, userAgent, extraParams, isAllResponse, custom_header, _a, _b, search, parsedUrl;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
                     case 0:
                         logger.debug(method + ' ' + url);
                         parsed_url = this._parseUrl(url);
@@ -144,14 +144,16 @@ var RestClient = /** @class */ (function () {
                         if (!this._custom_header) return [3 /*break*/, 2];
                         return [4 /*yield*/, this._custom_header()];
                     case 1:
-                        _a = _b.sent();
+                        _a = _c.sent();
                         return [3 /*break*/, 3];
                     case 2:
                         _a = undefined;
-                        _b.label = 3;
+                        _c.label = 3;
                     case 3:
                         custom_header = _a;
                         params.headers = __assign({}, libraryHeaders, (custom_header), extraParams.headers);
+                        _b = urlLib.parse(url, true, true), search = _b.search, parsedUrl = __rest(_b, ["search"]);
+                        params.url = urlLib.format(__assign({}, parsedUrl, { query: __assign({}, parsedUrl.query, (extraParams.queryStringParameters || {})) }));
                         // Do not sign the request if client has added 'Authorization' header,
                         // which means custom authorizer.
                         if (typeof params.headers['Authorization'] !== 'undefined') {
@@ -264,9 +266,6 @@ var RestClient = /** @class */ (function () {
     /** private methods **/
     RestClient.prototype._signed = function (params, credentials, isAllResponse) {
         var signerServiceInfoParams = params.signerServiceInfo, otherParams = __rest(params, ["signerServiceInfo"]);
-        // Intentionally discarding search
-        var _a = url.parse(otherParams.url, true, true), search = _a.search, parsedUrl = __rest(_a, ["search"]);
-        otherParams.url = url.format(__assign({}, parsedUrl, { query: __assign({}, parsedUrl.query, (otherParams.queryStringParameters || {})) }));
         var endpoint_region = this._region || this._options.region;
         var endpoint_service = this._service || this._options.service;
         var creds = {

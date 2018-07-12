@@ -11,14 +11,6 @@
  * CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
  * and limitations under the License.
  */
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -60,7 +52,6 @@ var Platform_1 = require("../Common/Platform");
 var Cache_1 = require("../Cache");
 require("../Common/Polyfills");
 var logger = new Common_1.ConsoleLogger('AuthClass');
-var CognitoIdentityCredentials = Common_1.AWS.CognitoIdentityCredentials, Credentials = Common_1.AWS.Credentials;
 var CognitoAuth = Common_1.CognitoHostedUI.CognitoAuth;
 var CookieStorage = Common_1.Cognito.CookieStorage, CognitoUserPool = Common_1.Cognito.CognitoUserPool, CognitoUserAttribute = Common_1.Cognito.CognitoUserAttribute, CognitoUser = Common_1.Cognito.CognitoUser, AuthenticationDetails = Common_1.Cognito.AuthenticationDetails;
 var dispatchAuthEvent = function (event, data) {
@@ -77,15 +68,10 @@ var AuthClass = /** @class */ (function () {
     function AuthClass(config) {
         this.userPool = null;
         this._cognitoAuthClient = null;
-        this.credentials = null;
-        this.credentials_source = ''; // aws, guest, userPool, federated
         this.user = null;
-        this._refreshHandlers = {};
         this._gettingCredPromise = null;
         this.configure(config);
-        // refresh token
-        this._refreshHandlers['google'] = Common_1.GoogleOAuth.refreshGoogleToken;
-        this._refreshHandlers['facebook'] = Common_1.FacebookOAuth.refreshFacebookToken;
+        this.currentUserCredentials = this.currentUserCredentials.bind(this);
         if (Common_1.AWS.config) {
             Common_1.AWS.config.update({ customUserAgent: Common_1.Constants.userAgent });
         }
@@ -103,7 +89,7 @@ var AuthClass = /** @class */ (function () {
         if (!this._config.identityPoolId) {
             logger.debug('Do not have identityPoolId yet.');
         }
-        var _a = this._config, userPoolId = _a.userPoolId, userPoolWebClientId = _a.userPoolWebClientId, cookieStorage = _a.cookieStorage, oauth = _a.oauth, refreshHandlers = _a.refreshHandlers;
+        var _a = this._config, userPoolId = _a.userPoolId, userPoolWebClientId = _a.userPoolWebClientId, cookieStorage = _a.cookieStorage, oauth = _a.oauth, region = _a.region, identityPoolId = _a.identityPoolId, mandatorySignIn = _a.mandatorySignIn, refreshHandlers = _a.refreshHandlers;
         if (userPoolId) {
             var userPoolData = {
                 UserPoolId: userPoolId,
@@ -127,6 +113,13 @@ var AuthClass = /** @class */ (function () {
                 });
             }
         }
+        Common_1.Credentials.configure({
+            mandatorySignIn: mandatorySignIn,
+            region: region,
+            userPoolId: userPoolId,
+            identityPoolId: identityPoolId,
+            refreshHandlers: refreshHandlers
+        });
         // initiailize cognitoauth client if hosted ui options provided
         if (oauth) {
             var that_1 = this;
@@ -137,7 +130,8 @@ var AuthClass = /** @class */ (function () {
                 TokenScopesArray: oauth.scope,
                 RedirectUriSignIn: oauth.redirectSignIn,
                 RedirectUriSignOut: oauth.redirectSignOut,
-                ResponseType: oauth.responseType
+                ResponseType: oauth.responseType,
+                Storage: this.userPool.storage
             }, oauth.options);
             logger.debug('cognito auth params', cognitoAuthParams);
             this._cognitoAuthClient = new CognitoAuth(cognitoAuthParams);
@@ -151,20 +145,24 @@ var AuthClass = /** @class */ (function () {
                         return __generator(this, function (_a) {
                             switch (_a.label) {
                                 case 0:
-                                    _a.trys.push([0, 2, 3, 4]);
-                                    return [4 /*yield*/, that_1._setCredentialsFromSession(session)];
+                                    _a.trys.push([0, 3, 4, 5]);
+                                    return [4 /*yield*/, Common_1.Credentials.clear()];
                                 case 1:
+                                    _a.sent();
+                                    return [4 /*yield*/, Common_1.Credentials.set(session, 'session')];
+                                case 2:
                                     cred = _a.sent();
                                     logger.debug('sign in succefully with', cred);
-                                    return [3 /*break*/, 4];
-                                case 2:
+                                    return [3 /*break*/, 5];
+                                case 3:
                                     e_1 = _a.sent();
                                     logger.debug('sign in without aws credentials', e_1);
-                                    return [3 /*break*/, 4];
-                                case 3:
+                                    return [3 /*break*/, 5];
+                                case 4:
                                     dispatchAuthEvent('signIn', that_1.user);
+                                    dispatchAuthEvent('cognitoHostedUI', that_1.user);
                                     return [7 /*endfinally*/];
-                                case 4: return [2 /*return*/];
+                                case 5: return [2 /*return*/];
                             }
                         });
                     }); });
@@ -181,11 +179,6 @@ var AuthClass = /** @class */ (function () {
                 var curUrl = window.location.href;
                 _this._cognitoAuthClient.parseCognitoWebResponse(curUrl);
             });
-        }
-        // If the developer has provided an object of refresh handlers,
-        // then we can merge the provided handlers with the current handlers.
-        if (refreshHandlers) {
-            this._refreshHandlers = __assign({}, this._refreshHandlers, refreshHandlers);
         }
         dispatchAuthEvent('configured', null);
         return this._config;
@@ -259,9 +252,10 @@ var AuthClass = /** @class */ (function () {
      * Send the verfication code to confirm sign up
      * @param {String} username - The username to be confirmed
      * @param {String} code - The verification code
+     * @param {ConfirmSignUpOptions} options - other options for confirm signup
      * @return - A promise resolves callback data if success
      */
-    AuthClass.prototype.confirmSignUp = function (username, code) {
+    AuthClass.prototype.confirmSignUp = function (username, code, options) {
         if (!this.userPool) {
             return Promise.reject('No userPool');
         }
@@ -272,8 +266,10 @@ var AuthClass = /** @class */ (function () {
             return Promise.reject('Code cannot be empty');
         }
         var user = this.createCognitoUser(username);
+        var forceAliasCreation = options && typeof options.forceAliasCreation === 'boolean'
+            ? options.forceAliasCreation : true;
         return new Promise(function (resolve, reject) {
-            user.confirmRegistration(code, true, function (err, data) {
+            user.confirmRegistration(code, forceAliasCreation, function (err, data) {
                 if (err) {
                     reject(err);
                 }
@@ -314,90 +310,139 @@ var AuthClass = /** @class */ (function () {
      * @return - A promise resolves the CognitoUser
      */
     AuthClass.prototype.signIn = function (username, password) {
-        var _this = this;
         if (!this.userPool) {
             return Promise.reject('No userPool');
         }
         if (!username) {
             return Promise.reject('Username cannot be empty');
         }
-        if (!password) {
-            return Promise.reject('Password cannot be empty');
+        if (password) {
+            return this.signInWithPassword(username, password);
         }
+        else {
+            return this.signInWithoutPassword(username);
+        }
+    };
+    /**
+     * Return an object with the authentication callbacks
+     * @param {CognitoUser} user - the cognito user object
+     * @param {} resolve - function called when resolving the current step
+     * @param {} reject - function called when rejecting the current step
+     * @return - an object with the callback methods for user authentication
+     */
+    AuthClass.prototype.authCallbacks = function (user, resolve, reject) {
+        var _this = this;
+        var that = this;
+        return {
+            onSuccess: function (session) { return __awaiter(_this, void 0, void 0, function () {
+                var cred, e_2;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            logger.debug(session);
+                            delete (user['challengeName']);
+                            delete (user['challengeParam']);
+                            _a.label = 1;
+                        case 1:
+                            _a.trys.push([1, 4, 5, 6]);
+                            return [4 /*yield*/, Common_1.Credentials.clear()];
+                        case 2:
+                            _a.sent();
+                            return [4 /*yield*/, Common_1.Credentials.set(session, 'session')];
+                        case 3:
+                            cred = _a.sent();
+                            logger.debug('succeed to get cognito credentials', cred);
+                            return [3 /*break*/, 6];
+                        case 4:
+                            e_2 = _a.sent();
+                            logger.debug('cannot get cognito credentials', e_2);
+                            return [3 /*break*/, 6];
+                        case 5:
+                            that.user = user;
+                            dispatchAuthEvent('signIn', user);
+                            resolve(user);
+                            return [7 /*endfinally*/];
+                        case 6: return [2 /*return*/];
+                    }
+                });
+            }); },
+            onFailure: function (err) {
+                logger.debug('signIn failure', err);
+                dispatchAuthEvent('signIn_failure', err);
+                reject(err);
+            },
+            customChallenge: function (challengeParam) {
+                logger.debug('signIn custom challenge answer required');
+                user['challengeName'] = 'CUSTOM_CHALLENGE';
+                user['challengeParam'] = challengeParam;
+                resolve(user);
+            },
+            mfaRequired: function (challengeName, challengeParam) {
+                logger.debug('signIn MFA required');
+                user['challengeName'] = challengeName;
+                user['challengeParam'] = challengeParam;
+                resolve(user);
+            },
+            mfaSetup: function (challengeName, challengeParam) {
+                logger.debug('signIn mfa setup', challengeName);
+                user['challengeName'] = challengeName;
+                user['challengeParam'] = challengeParam;
+                resolve(user);
+            },
+            newPasswordRequired: function (userAttributes, requiredAttributes) {
+                logger.debug('signIn new password');
+                user['challengeName'] = 'NEW_PASSWORD_REQUIRED';
+                user['challengeParam'] = {
+                    userAttributes: userAttributes,
+                    requiredAttributes: requiredAttributes
+                };
+                resolve(user);
+            },
+            totpRequired: function (challengeName, challengeParam) {
+                logger.debug('signIn totpRequired');
+                user['challengeName'] = challengeName;
+                user['challengeParam'] = challengeParam;
+                resolve(user);
+            },
+            selectMFAType: function (challengeName, challengeParam) {
+                logger.debug('signIn selectMFAType', challengeName);
+                user['challengeName'] = challengeName;
+                user['challengeParam'] = challengeParam;
+                resolve(user);
+            }
+        };
+    };
+    /**
+     * Sign in with a password
+     * @param {String} username - The username to be signed in
+     * @param {String} password - The password of the username
+     * @return - A promise resolves the CognitoUser object if success or mfa required
+     */
+    AuthClass.prototype.signInWithPassword = function (username, password) {
+        var _this = this;
         var user = this.createCognitoUser(username);
         var authDetails = new AuthenticationDetails({
             Username: username,
             Password: password
         });
-        var that = this;
         return new Promise(function (resolve, reject) {
-            user.authenticateUser(authDetails, {
-                onSuccess: function (session) { return __awaiter(_this, void 0, void 0, function () {
-                    var cred, e_2;
-                    return __generator(this, function (_a) {
-                        switch (_a.label) {
-                            case 0:
-                                logger.debug(session);
-                                _a.label = 1;
-                            case 1:
-                                _a.trys.push([1, 3, 4, 5]);
-                                return [4 /*yield*/, that._setCredentialsFromSession(session)];
-                            case 2:
-                                cred = _a.sent();
-                                logger.debug('succeed to get cognito credentials', cred);
-                                return [3 /*break*/, 5];
-                            case 3:
-                                e_2 = _a.sent();
-                                logger.debug('cannot get cognito credentials', e_2);
-                                return [3 /*break*/, 5];
-                            case 4:
-                                that.user = user;
-                                dispatchAuthEvent('signIn', user);
-                                resolve(user);
-                                return [7 /*endfinally*/];
-                            case 5: return [2 /*return*/];
-                        }
-                    });
-                }); },
-                onFailure: function (err) {
-                    logger.debug('signIn failure', err);
-                    dispatchAuthEvent('signIn_failure', err);
-                    reject(err);
-                },
-                mfaRequired: function (challengeName, challengeParam) {
-                    logger.debug('signIn MFA required');
-                    user['challengeName'] = challengeName;
-                    user['challengeParam'] = challengeParam;
-                    resolve(user);
-                },
-                newPasswordRequired: function (userAttributes, requiredAttributes) {
-                    logger.debug('signIn new password');
-                    user['challengeName'] = 'NEW_PASSWORD_REQUIRED';
-                    user['challengeParam'] = {
-                        userAttributes: userAttributes,
-                        requiredAttributes: requiredAttributes
-                    };
-                    resolve(user);
-                },
-                mfaSetup: function (challengeName, challengeParam) {
-                    logger.debug('signIn mfa setup', challengeName);
-                    user['challengeName'] = challengeName;
-                    user['challengeParam'] = challengeParam;
-                    resolve(user);
-                },
-                totpRequired: function (challengeName, challengeParam) {
-                    logger.debug('signIn totpRequired');
-                    user['challengeName'] = challengeName;
-                    user['challengeParam'] = challengeParam;
-                    resolve(user);
-                },
-                selectMFAType: function (challengeName, challengeParam) {
-                    logger.debug('signIn selectMFAType', challengeName);
-                    user['challengeName'] = challengeName;
-                    user['challengeParam'] = challengeParam;
-                    resolve(user);
-                }
-            });
+            user.authenticateUser(authDetails, _this.authCallbacks(user, resolve, reject));
+        });
+    };
+    /**
+     * Sign in without a password
+     * @param {String} username - The username to be signed in
+     * @return - A promise resolves the CognitoUser object if success or mfa required
+     */
+    AuthClass.prototype.signInWithoutPassword = function (username) {
+        var _this = this;
+        var user = this.createCognitoUser(username);
+        user.setAuthenticationFlowType('CUSTOM_AUTH');
+        var authDetails = new AuthenticationDetails({
+            Username: username,
+        });
+        return new Promise(function (resolve, reject) {
+            user.initiateAuth(authDetails, _this.authCallbacks(user, resolve, reject));
         });
     };
     /**
@@ -586,22 +631,25 @@ var AuthClass = /** @class */ (function () {
                                 logger.debug(session);
                                 _a.label = 1;
                             case 1:
-                                _a.trys.push([1, 3, 4, 5]);
-                                return [4 /*yield*/, that._setCredentialsFromSession(session)];
+                                _a.trys.push([1, 4, 5, 6]);
+                                return [4 /*yield*/, Common_1.Credentials.clear()];
                             case 2:
+                                _a.sent();
+                                return [4 /*yield*/, Common_1.Credentials.set(session, 'session')];
+                            case 3:
                                 cred = _a.sent();
                                 logger.debug('succeed to get cognito credentials', cred);
-                                return [3 /*break*/, 5];
-                            case 3:
+                                return [3 /*break*/, 6];
+                            case 4:
                                 e_3 = _a.sent();
                                 logger.debug('cannot get cognito credentials', e_3);
-                                return [3 /*break*/, 5];
-                            case 4:
+                                return [3 /*break*/, 6];
+                            case 5:
                                 that.user = user;
                                 dispatchAuthEvent('signIn', user);
                                 resolve(user);
                                 return [7 /*endfinally*/];
-                            case 5: return [2 /*return*/];
+                            case 6: return [2 /*return*/];
                         }
                     });
                 }); },
@@ -628,22 +676,25 @@ var AuthClass = /** @class */ (function () {
                                 logger.debug(session);
                                 _a.label = 1;
                             case 1:
-                                _a.trys.push([1, 3, 4, 5]);
-                                return [4 /*yield*/, that._setCredentialsFromSession(session)];
+                                _a.trys.push([1, 4, 5, 6]);
+                                return [4 /*yield*/, Common_1.Credentials.clear()];
                             case 2:
+                                _a.sent();
+                                return [4 /*yield*/, Common_1.Credentials.set(session, 'session')];
+                            case 3:
                                 cred = _a.sent();
                                 logger.debug('succeed to get cognito credentials', cred);
-                                return [3 /*break*/, 5];
-                            case 3:
+                                return [3 /*break*/, 6];
+                            case 4:
                                 e_4 = _a.sent();
                                 logger.debug('cannot get cognito credentials', e_4);
-                                return [3 /*break*/, 5];
-                            case 4:
+                                return [3 /*break*/, 6];
+                            case 5:
                                 that.user = user;
                                 dispatchAuthEvent('signIn', user);
                                 resolve(user);
                                 return [7 /*endfinally*/];
-                            case 5: return [2 /*return*/];
+                            case 6: return [2 /*return*/];
                         }
                     });
                 }); },
@@ -668,6 +719,24 @@ var AuthClass = /** @class */ (function () {
         });
     };
     /**
+     * Send the answer to a custom challenge
+     * @param {CognitoUser} user - The CognitoUser object
+     * @param {String} challengeResponses - The confirmation code
+     */
+    AuthClass.prototype.sendCustomChallengeAnswer = function (user, challengeResponses) {
+        var _this = this;
+        if (!this.userPool) {
+            return Promise.reject('No userPool');
+        }
+        if (!challengeResponses) {
+            return Promise.reject('Challenge response cannot be empty');
+        }
+        var that = this;
+        return new Promise(function (resolve, reject) {
+            user.sendCustomChallengeAnswer(challengeResponses, _this.authCallbacks(user, resolve, reject));
+        });
+    };
+    /**
      * Update an authenticated users' attributes
      * @param {CognitoUser} - The currently logged in user object
      * @return {Promise}
@@ -680,8 +749,7 @@ var AuthClass = /** @class */ (function () {
             return new Promise(function (resolve, reject) {
                 for (var key in attributes) {
                     if (key !== 'sub' &&
-                        key.indexOf('_verified') < 0 &&
-                        attributes[key]) {
+                        key.indexOf('_verified') < 0) {
                         attr = {
                             'Name': key,
                             'Value': attributes[key]
@@ -803,7 +871,6 @@ var AuthClass = /** @class */ (function () {
             if (!that.userPool) {
                 return Promise.reject('No userPool');
             }
-            that.credentials_source = 'userPool';
             return that.userPool.getCurrentUser();
         });
     };
@@ -822,7 +889,7 @@ var AuthClass = /** @class */ (function () {
                         _b.label = 1;
                     case 1:
                         _b.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, Cache_1.default.getItem('federatedUser')];
+                        return [4 /*yield*/, Cache_1.default.getItem('federatedInfo').user];
                     case 2:
                         federatedUser = _b.sent();
                         return [3 /*break*/, 4];
@@ -940,7 +1007,6 @@ var AuthClass = /** @class */ (function () {
      * @return - A promise resolves to be current user's credentials
      */
     AuthClass.prototype.currentUserCredentials = function () {
-        var _this = this;
         var that = this;
         logger.debug('Getting current user credentials');
         if (Platform_1.default.isReactNative) {
@@ -949,14 +1015,14 @@ var AuthClass = /** @class */ (function () {
                 .then(function (federatedInfo) {
                 if (federatedInfo) {
                     // refresh the jwt token here if necessary
-                    return that._refreshFederatedToken(federatedInfo);
+                    return Common_1.Credentials.refreshFederatedToken(federatedInfo);
                 }
                 else {
                     return that.currentSession()
                         .then(function (session) {
-                        return that._setCredentialsFromSession(session);
+                        return Common_1.Credentials.set(session, 'session');
                     }).catch(function (error) {
-                        return that._setCredentialsForGuest();
+                        return Common_1.Credentials.set(null, 'guest');
                     });
                 }
             }).catch(function (error) {
@@ -968,61 +1034,23 @@ var AuthClass = /** @class */ (function () {
             var federatedInfo = Cache_1.default.getItem('federatedInfo');
             if (federatedInfo) {
                 // refresh the jwt token here if necessary
-                return this._refreshFederatedToken(federatedInfo);
+                return Common_1.Credentials.refreshFederatedToken(federatedInfo);
             }
             else {
                 return this.currentSession()
                     .then(function (session) {
                     logger.debug('getting session success', session);
-                    return _this._setCredentialsFromSession(session);
+                    return Common_1.Credentials.set(session, 'session');
                 }).catch(function (error) {
                     logger.debug('getting session failed', error);
-                    return _this._setCredentialsForGuest();
+                    return Common_1.Credentials.set(null, 'guest');
                 });
             }
-        }
-    };
-    AuthClass.prototype._refreshFederatedToken = function (federatedInfo) {
-        var _this = this;
-        logger.debug('Getting federated credentials');
-        var provider = federatedInfo.provider, user = federatedInfo.user;
-        var token = federatedInfo.token;
-        var identity_id = federatedInfo.identity_id;
-        var expires_at = federatedInfo.expires_at;
-        var that = this;
-        logger.debug('checking if federated jwt token expired');
-        if (expires_at < new Date().getTime()) {
-            if (typeof that._refreshHandlers[provider] === 'function') {
-                logger.debug('getting refreshed jwt token from federation provider');
-                return that._refreshHandlers[provider]().then(function (data) {
-                    logger.debug('refresh federated token sucessfully', data);
-                    token = data.token;
-                    identity_id = data.identity_id;
-                    expires_at = data.expires_at;
-                    // Cache.setItem('federatedInfo', { provider, token, user, expires_at }, { priority: 1 });
-                    return that._setCredentialsFromFederation({ provider: provider, token: token, user: user, identity_id: identity_id, expires_at: expires_at });
-                }).catch(function (e) {
-                    logger.debug('refresh federated token failed', e);
-                    _this.cleanCachedItems();
-                    return Promise.reject('refreshing federation token failed: ' + e);
-                });
-            }
-            else {
-                if (!that._refreshHandlers[provider]) {
-                    logger.debug('no refresh handler for provider:', provider);
-                    this.cleanCachedItems();
-                    return Promise.reject('no refresh handler for provider');
-                }
-            }
-        }
-        else {
-            logger.debug('token not expired');
-            return this._setCredentialsFromFederation({ provider: provider, token: token, user: user, identity_id: identity_id, expires_at: expires_at });
         }
     };
     AuthClass.prototype.currentCredentials = function () {
         logger.debug('getting current credntials');
-        return this.pickupCredentials();
+        return Common_1.Credentials.get();
     };
     /**
      * Initiate an attribute confirmation request
@@ -1113,7 +1141,7 @@ var AuthClass = /** @class */ (function () {
                                     switch (_a.label) {
                                         case 0:
                                             _a.trys.push([0, 2, 3, 4]);
-                                            return [4 /*yield*/, that._setCredentialsForGuest()];
+                                            return [4 /*yield*/, Common_1.Credentials.set(null, 'guest')];
                                         case 1:
                                             _a.sent();
                                             return [3 /*break*/, 4];
@@ -1136,27 +1164,14 @@ var AuthClass = /** @class */ (function () {
     };
     AuthClass.prototype.cleanCachedItems = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, identityPoolId, region, mandatorySignIn, credentials;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _a = this._config, identityPoolId = _a.identityPoolId, region = _a.region, mandatorySignIn = _a.mandatorySignIn;
-                        if (identityPoolId) {
-                            credentials = new CognitoIdentityCredentials({
-                                IdentityPoolId: identityPoolId
-                            }, {
-                                region: region
-                            });
-                            credentials.clearCachedId();
-                        }
-                        // clear federatedInfo
-                        return [4 /*yield*/, Cache_1.default.removeItem('federatedInfo')];
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: 
+                    // clear cognito cached item
+                    return [4 /*yield*/, Common_1.Credentials.clear()];
                     case 1:
-                        // clear federatedInfo
-                        _b.sent();
-                        return [4 /*yield*/, Cache_1.default.removeItem('federatedUser')];
-                    case 2:
-                        _b.sent();
+                        // clear cognito cached item
+                        _a.sent();
                         return [2 /*return*/];
                 }
             });
@@ -1246,11 +1261,11 @@ var AuthClass = /** @class */ (function () {
      */
     AuthClass.prototype.currentUserInfo = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var source, user, attributes, userAttrs, e_10, info, err_1, user;
+            var source, user, attributes, userAttrs, credentials, e_10, info, err_1, user;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        source = this.credentials_source;
+                        source = Common_1.Credentials.getCredSource();
                         if (!(!source || source === 'aws' || source === 'userPool')) return [3 /*break*/, 9];
                         return [4 /*yield*/, this.currentUserPoolUser()
                                 .catch(function (err) { return logger.debug(err); })];
@@ -1266,13 +1281,13 @@ var AuthClass = /** @class */ (function () {
                     case 3:
                         attributes = _a.sent();
                         userAttrs = this.attributesToObject(attributes);
-                        if (!!this.credentials) return [3 /*break*/, 7];
+                        credentials = null;
                         _a.label = 4;
                     case 4:
                         _a.trys.push([4, 6, , 7]);
                         return [4 /*yield*/, this.currentCredentials()];
                     case 5:
-                        _a.sent();
+                        credentials = _a.sent();
                         return [3 /*break*/, 7];
                     case 6:
                         e_10 = _a.sent();
@@ -1280,7 +1295,7 @@ var AuthClass = /** @class */ (function () {
                         return [3 /*break*/, 7];
                     case 7:
                         info = {
-                            'id': this.credentials ? this.credentials.identityId : undefined,
+                            'id': credentials ? credentials.identityId : undefined,
                             'username': user.username,
                             'attributes': userAttrs
                         };
@@ -1308,13 +1323,12 @@ var AuthClass = /** @class */ (function () {
      * @param {String} user - user info
      */
     AuthClass.prototype.federatedSignIn = function (provider, response, user) {
-        var _this = this;
         var token = response.token, identity_id = response.identity_id, expires_at = response.expires_at;
         var that = this;
         return new Promise(function (res, rej) {
-            that._setCredentialsFromFederation({ provider: provider, token: token, identity_id: identity_id, user: user, expires_at: expires_at }).then(function (cred) {
+            Common_1.Credentials.set({ provider: provider, token: token, identity_id: identity_id, user: user, expires_at: expires_at }, 'federation').then(function (cred) {
                 dispatchAuthEvent('signIn', that.user);
-                logger.debug('federated sign in credentials', _this.credentials);
+                logger.debug('federated sign in credentials', cred);
                 res(cred);
             }).catch(function (e) {
                 rej(e);
@@ -1354,204 +1368,20 @@ var AuthClass = /** @class */ (function () {
         }
         return obj;
     };
-    AuthClass.prototype.pickupCredentials = function () {
-        logger.debug('picking up credentials');
-        if (!this._gettingCredPromise || !this._gettingCredPromise.isPending()) {
-            logger.debug('getting new cred promise');
-            if (Common_1.AWS.config && Common_1.AWS.config.credentials && Common_1.AWS.config.credentials instanceof Credentials) {
-                this._gettingCredPromise = Common_1.JS.makeQuerablePromise(this._setCredentialsFromAWS());
-            }
-            else {
-                this._gettingCredPromise = Common_1.JS.makeQuerablePromise(this.keepAlive());
-            }
-        }
-        else {
-            logger.debug('getting old cred promise');
-        }
-        return this._gettingCredPromise;
-    };
-    AuthClass.prototype._setCredentialsFromAWS = function () {
-        var credentials = Common_1.AWS.config.credentials;
-        logger.debug('setting credentials from aws');
-        var that = this;
-        if (credentials instanceof Credentials) {
-            return this._loadCredentials(credentials, 'aws', undefined, null);
-        }
-        else {
-            logger.debug('AWS.config.credentials is not an instance of AWS Credentials');
-            return Promise.reject('AWS.config.credentials is not an instance of AWS Credentials');
-        }
-    };
-    AuthClass.prototype._setCredentialsForGuest = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var _a, identityPoolId, region, mandatorySignIn, identityId, credentials, that;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        logger.debug('setting credentials for guest');
-                        _a = this._config, identityPoolId = _a.identityPoolId, region = _a.region, mandatorySignIn = _a.mandatorySignIn;
-                        if (mandatorySignIn) {
-                            return [2 /*return*/, Promise.reject('cannot get guest credentials when mandatory signin enabled')];
-                        }
-                        return [4 /*yield*/, Common_1.StorageHelper.getItem('CognitoIdentityId-' + identityPoolId)];
-                    case 1:
-                        identityId = _b.sent();
-                        credentials = new CognitoIdentityCredentials({
-                            IdentityPoolId: identityPoolId,
-                            IdentityId: identityId ? identityId : undefined
-                        }, {
-                            region: region
-                        });
-                        that = this;
-                        return [2 /*return*/, this._loadCredentials(credentials, 'guest', false, null)];
-                }
-            });
-        });
-    };
-    AuthClass.prototype._setCredentialsFromSession = function (session) {
-        logger.debug('set credentials from session');
-        var idToken = session.getIdToken().getJwtToken();
-        var _a = this._config, region = _a.region, userPoolId = _a.userPoolId, identityPoolId = _a.identityPoolId;
-        var key = 'cognito-idp.' + region + '.amazonaws.com/' + userPoolId;
-        var logins = {};
-        logins[key] = idToken;
-        var credentials = new CognitoIdentityCredentials({
-            IdentityPoolId: identityPoolId,
-            Logins: logins
-        }, {
-            region: region
-        });
-        var that = this;
-        return this._loadCredentials(credentials, 'userPool', true, null);
-    };
-    AuthClass.prototype._setCredentialsFromFederation = function (params) {
-        return __awaiter(this, void 0, void 0, function () {
-            var provider, token, identity_id, user, expires_at, domains, domain, logins, _a, identityPoolId, region, credentials, e_11;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        provider = params.provider, token = params.token, identity_id = params.identity_id, user = params.user, expires_at = params.expires_at;
-                        domains = {
-                            'google': 'accounts.google.com',
-                            'facebook': 'graph.facebook.com',
-                            'amazon': 'www.amazon.com',
-                            'developer': 'cognito-identity.amazonaws.com'
-                        };
-                        domain = domains[provider] || provider;
-                        if (!domain) {
-                            return [2 /*return*/, Promise.reject('You must specify a federated provider')];
-                        }
-                        logins = {};
-                        logins[domain] = token;
-                        _a = this._config, identityPoolId = _a.identityPoolId, region = _a.region;
-                        credentials = new Common_1.AWS.CognitoIdentityCredentials({
-                            IdentityPoolId: identityPoolId,
-                            IdentityId: identity_id,
-                            Logins: logins
-                        }, {
-                            region: region
-                        });
-                        _b.label = 1;
-                    case 1:
-                        _b.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, Cache_1.default.setItem('federatedInfo', { provider: provider, token: token, identity_id: identity_id, user: user, expires_at: expires_at }, { priority: 1 })];
-                    case 2:
-                        _b.sent();
-                        return [3 /*break*/, 4];
-                    case 3:
-                        e_11 = _b.sent();
-                        logger.debug('Failed to cache federated info with', e_11);
-                        return [3 /*break*/, 4];
-                    case 4: return [2 /*return*/, this._loadCredentials(credentials, 'federated', true, user)];
-                }
-            });
-        });
-    };
-    AuthClass.prototype._loadCredentials = function (credentials, source, authenticated, rawUser) {
-        var _this = this;
-        var that = this;
-        var identityPoolId = this._config.identityPoolId;
-        return new Promise(function (res, rej) {
-            credentials.getPromise().then(function () { return __awaiter(_this, void 0, void 0, function () {
-                var e_12, e_13;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            logger.debug('Load credentials successfully', credentials);
-                            that.credentials = credentials;
-                            that.credentials.authenticated = authenticated;
-                            that.credentials_source = source;
-                            if (!(source === 'federated')) return [3 /*break*/, 4];
-                            that.user = Object.assign({ id: this.credentials.identityId }, rawUser);
-                            _a.label = 1;
-                        case 1:
-                            _a.trys.push([1, 3, , 4]);
-                            return [4 /*yield*/, Cache_1.default.setItem('federatedUser', that.user, { priority: 1 })];
-                        case 2:
-                            _a.sent();
-                            return [3 /*break*/, 4];
-                        case 3:
-                            e_12 = _a.sent();
-                            logger.debug('Failed to cache federated user info', e_12);
-                            return [3 /*break*/, 4];
-                        case 4:
-                            if (!(source === 'guest')) return [3 /*break*/, 8];
-                            _a.label = 5;
-                        case 5:
-                            _a.trys.push([5, 7, , 8]);
-                            return [4 /*yield*/, Common_1.StorageHelper.setItem('CognitoIdentityId-' + identityPoolId, credentials.identityId)];
-                        case 6:
-                            _a.sent();
-                            return [3 /*break*/, 8];
-                        case 7:
-                            e_13 = _a.sent();
-                            logger.debug('Failed to cache identityId', e_13);
-                            return [3 /*break*/, 8];
-                        case 8:
-                            res(that.credentials);
-                            return [2 /*return*/];
-                    }
-                });
-            }); }, function (err) {
-                logger.debug('Failed to load credentials', credentials);
-                rej(err);
-            });
-        });
-    };
-    AuthClass.prototype.keepAlive = function () {
-        logger.debug('checking if credentials exists and not expired');
-        var cred = this.credentials;
-        if (cred && !this._isExpired(cred)) {
-            logger.debug('credentials not changed and not expired, directly return');
-            return Promise.resolve(cred);
-        }
-        logger.debug('need to get a new credential or refresh the existing one');
-        return this.currentUserCredentials();
-    };
     AuthClass.prototype.createCognitoUser = function (username) {
         var userData = {
             Username: username,
             Pool: this.userPool,
         };
-        var cookieStorage = this._config.cookieStorage;
+        var _a = this._config, cookieStorage = _a.cookieStorage, authenticationFlowType = _a.authenticationFlowType;
         if (cookieStorage) {
             userData.Storage = new CookieStorage(cookieStorage);
         }
-        return new CognitoUser(userData);
-    };
-    AuthClass.prototype._isExpired = function (credentials) {
-        if (!credentials) {
-            logger.debug('no credentials for expiration check');
-            return true;
+        var user = new CognitoUser(userData);
+        if (authenticationFlowType) {
+            user.setAuthenticationFlowType(authenticationFlowType);
         }
-        logger.debug('is this credentials expired?', credentials);
-        var ts = new Date().getTime();
-        var delta = 10 * 60 * 1000; // 10 minutes
-        var expired = credentials.expired, expireTime = credentials.expireTime;
-        if (!expired && expireTime > ts + delta) {
-            return false;
-        }
-        return true;
+        return user;
     };
     return AuthClass;
 }());

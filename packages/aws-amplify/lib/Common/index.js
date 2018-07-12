@@ -38,6 +38,8 @@ exports.GoogleOAuth = OAuthHelper_1.GoogleOAuth;
 var Amplify_1 = require("./Amplify");
 exports.Amplify = Amplify_1.default;
 __export(require("./RNComponents"));
+var Credentials_1 = require("./Credentials");
+exports.Credentials = Credentials_1.default;
 var ServiceWorker_1 = require("./ServiceWorker");
 exports.ServiceWorker = ServiceWorker_1.default;
 var StorageHelper_1 = require("./StorageHelper");

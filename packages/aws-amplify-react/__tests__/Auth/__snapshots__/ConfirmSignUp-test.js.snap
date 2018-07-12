@@ -120,6 +120,9 @@ exports[`ConfirmSignIn normal case render correctly with Props confirmSignUp 1`]
         "textAlign": "left",
         "width": "400px",
       },
+      "hidden": Object {
+        "display": "none",
+      },
       "input": Object {
         "backgroundColor": "#fff",
         "backgroundImage": "none",
@@ -360,6 +363,9 @@ exports[`ConfirmSignIn normal case render correctly with Props confirmSignUp 1`]
           "marginBottom": "20px",
           "textAlign": "left",
           "width": "400px",
+        },
+        "hidden": Object {
+          "display": "none",
         },
         "input": Object {
           "backgroundColor": "#fff",
@@ -606,6 +612,9 @@ exports[`ConfirmSignIn normal case render correctly with Props confirmSignUp 1`]
           "textAlign": "left",
           "width": "400px",
         },
+        "hidden": Object {
+          "display": "none",
+        },
         "input": Object {
           "backgroundColor": "#fff",
           "backgroundImage": "none",
@@ -851,6 +860,9 @@ exports[`ConfirmSignIn normal case render correctly with Props confirmSignUp 1`]
             "textAlign": "left",
             "width": "400px",
           },
+          "hidden": Object {
+            "display": "none",
+          },
           "input": Object {
             "backgroundColor": "#fff",
             "backgroundImage": "none",
@@ -974,6 +986,7 @@ exports[`ConfirmSignIn normal case render correctly with Props confirmSignUp 1`]
       }
     />
     <InputRow
+      autoComplete="off"
       autoFocus={true}
       key="code"
       name="code"
@@ -1096,6 +1109,9 @@ exports[`ConfirmSignIn normal case render correctly with Props confirmSignUp 1`]
             "marginBottom": "20px",
             "textAlign": "left",
             "width": "400px",
+          },
+          "hidden": Object {
+            "display": "none",
           },
           "input": Object {
             "backgroundColor": "#fff",
@@ -1338,6 +1354,9 @@ exports[`ConfirmSignIn normal case render correctly with Props confirmSignUp 1`]
             "textAlign": "left",
             "width": "400px",
           },
+          "hidden": Object {
+            "display": "none",
+          },
           "input": Object {
             "backgroundColor": "#fff",
             "backgroundImage": "none",
@@ -1579,6 +1598,9 @@ exports[`ConfirmSignIn normal case render correctly with Props confirmSignUp 1`]
               "marginBottom": "20px",
               "textAlign": "left",
               "width": "400px",
+            },
+            "hidden": Object {
+              "display": "none",
             },
             "input": Object {
               "backgroundColor": "#fff",
@@ -1823,6 +1845,9 @@ exports[`ConfirmSignIn normal case render correctly with Props confirmSignUp 1`]
               "textAlign": "left",
               "width": "400px",
             },
+            "hidden": Object {
+              "display": "none",
+            },
             "input": Object {
               "backgroundColor": "#fff",
               "backgroundImage": "none",
@@ -2064,6 +2089,9 @@ exports[`ConfirmSignIn normal case render correctly with Props confirmSignUp 1`]
               "marginBottom": "20px",
               "textAlign": "left",
               "width": "400px",
+            },
+            "hidden": Object {
+              "display": "none",
             },
             "input": Object {
               "backgroundColor": "#fff",
@@ -2310,6 +2338,9 @@ exports[`ConfirmSignIn normal case render correctly with Props confirmSignUp 1`]
           "textAlign": "left",
           "width": "400px",
         },
+        "hidden": Object {
+          "display": "none",
+        },
         "input": Object {
           "backgroundColor": "#fff",
           "backgroundImage": "none",
@@ -2552,6 +2583,9 @@ exports[`ConfirmSignIn normal case render correctly with Props confirmSignUp 1`]
             "textAlign": "left",
             "width": "400px",
           },
+          "hidden": Object {
+            "display": "none",
+          },
           "input": Object {
             "backgroundColor": "#fff",
             "backgroundImage": "none",
@@ -2679,6 +2713,8 @@ exports[`ConfirmSignIn normal case render correctly with Props confirmSignUp 1`]
   </SectionFooter>
 </FormSection>
 `;
+
+exports[`ConfirmSignIn normal case render correctly with hide 1`] = `""`;
 
 exports[`ConfirmSignIn null case with other authState render corrently 1`] = `""`;
 

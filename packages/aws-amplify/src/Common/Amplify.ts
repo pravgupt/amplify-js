@@ -16,6 +16,7 @@ export default class Amplify {
     static Cache = null;
     static PubSub = null;
     static XR = null;
+    static Interactions = null;
 
     static Logger = null;
     static ServiceWorker = null;

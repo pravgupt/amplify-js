@@ -35,12 +35,14 @@ export default class Client {
     };
 
     let response;
+    let responseJsonData;
 
     fetch(this.endpoint, options)
       .then(resp => {
         response = resp;
         return resp;
-      }, err => {
+      })
+      .catch(err => {
         // If error happens here, the request failed
         // if it is TypeError throw network error
         if (err instanceof TypeError) {
@@ -48,9 +50,24 @@ export default class Client {
         }
         throw err;
       })
-      .then(resp => resp.json().catch(() => ({})))
+      .then(resp => resp.json())
+      .catch(err => {
+        // If error happens here
+        // cannot parse the body stream, return undefined
+        if (response.ok) return callback(null, undefined);
+        else {
+          const error = {
+            code: response.status, 
+            statusCode: response.status,
+            message: response.statusText
+          }
+          callback(error);
+        }
+      })
       .then(data => {
+        // return parsed body stream
         if (response.ok) return callback(null, data);
+        responseJsonData = data;
 
         // Taken from aws-sdk-js/lib/protocol/json.js
         // eslint-disable-next-line no-underscore-dangle
@@ -63,13 +80,14 @@ export default class Client {
         return callback(error);
       })
       .catch(err => {
-        // default to return 'UnknownError'
-        let error = { code: 'UnknownError', message: 'Unkown error' };
+        // if cannot split the data
+        // default to return 'UnknownError' with the json data from response
+        let error = { code: 'UnknownError', message: 'Unknown error, the response body from fetch is: ' + responseJsonData};
 
         // first check if we have a service error
         if (response && response.headers && response.headers.get('x-amzn-errortype')) {
           try {
-            const code = (response.headers.get('x-amz-errortype')).split(':')[0];
+            const code = (response.headers.get('x-amzn-errortype')).split(':')[0];
             error = {
               code,
               name: code,
@@ -78,6 +96,11 @@ export default class Client {
             };
           } catch (ex) {
               // pass through so it doesn't get swallowed if we can't parse it
+              error = {
+                code: 'UnknownError',
+                message: response.headers.get('x-amzn-errortype'),
+              }
+              return callback(error);
           }
         // otherwise check if error is Network error
         } else if (err instanceof Error && err.message === 'Network error') {
