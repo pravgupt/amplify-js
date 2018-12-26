@@ -93,9 +93,9 @@ jobs:
           command: |
             yarn cypress --scope aws-amplify-react
       - store_artifacts:
-          path: cypress/videos
+          path: /root/app/packages/aws-amplify-react/cypress/videos
       - store_artifacts:
-          path: cypress/screenshots
+          path: /root/app/packages/aws-amplify-react/cypress/screenshots
   deploy:
     <<: *defaults
     steps:
