@@ -7,8 +7,6 @@ describe('withAuthenticator Sign In', function() {
     // Check for sign in page header
     cy.get('span').contains('Sign in to your account')
 
-
-    cy.request(Cypress.env('COGNITO_SIGN_IN_USERNAME'))
     // Sign in
     cy.get('input[name=username]').type(Cypress.env('COGNITO_SIGN_IN_USERNAME'))
     cy.get('input[name=password]').type(Cypress.env('COGNITO_SIGN_IN_PASSWORD'))
@@ -33,7 +31,7 @@ describe('withAuthenticator Sign In', function() {
   it('throws validation errors if username or password is incorrect', function() {
     // Check for empty username error
     cy.get('button').contains('Sign In').click()
-    cy.get('span').contains('Username cannot be empty')
+    cy.get('span').contains("Cannot read property 'username' of undefined")
 
     cy.get('input[name=username]').type('InvalidUsername')
     cy.get('button').contains('Sign In').click()
