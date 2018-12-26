@@ -13,7 +13,7 @@ describe('withAuthenticator Sign In', function() {
     cy.get('button').contains('Sign In').click()
     
     // Wait 1 second for sign in to load
-    cy.wait(3000);
+    cy.wait(1000);
 
     // Check for signed in page
     cy.get('.App-link').contains('Learn React')

@@ -79,9 +79,10 @@ jobs:
             git clone $AUTH_CLONE_URL
             cd aws-amplify-cypress-auth
             yarn
-            yarn link aws-amplify
-            yarn link aws-amplify-react
+            # yarn link aws-amplify
+            # yarn link aws-amplify-react
             echo $AWS_EXPORTS_AUTH >> src/aws-exports.js
+            ls src
       - run:
           name: "Start Auth test server in background"
           command: |
