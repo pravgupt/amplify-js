@@ -70,24 +70,20 @@ jobs:
           command: |
             cd packages/aws-amplify-react
             yarn link
-      - run:
-          name: "Install awsmobile cli"
-          command: |
-            echo 'export PATH=$(yarn global bin):$PATH' >> $BASH_ENV
-            source $BASH_ENV
-            yarn global add awsmobile-cli
+      # - run:
+      #     name: "Install awsmobile cli"
+      #     command: |
+      #       echo 'export PATH=$(yarn global bin):$PATH' >> $BASH_ENV
+      #       source $BASH_ENV
+      #       yarn global add awsmobile-cli
       - run: 
           name: "Clone auth test package, initialize mobilehub via cli, and link amplify packages"
           command: |
             mkdir ~/.ssh
-            echo $SSH_HOST_PUBLIC_KEY
             echo $SSH_HOST_PUBLIC_KEY >> ~/.ssh/known_hosts
-            echo $AUTH_CLONE_URL
             git clone $AUTH_CLONE_URL
             cd aws-amplify-cypress-auth
             yarn
-            awsmobile configure aws $IAM_ACCESS_KEY $IAM_SECRET_KEY $CLI_REGION
-            awsmobile init --yes $AUTH_MOBILE_HUB_PROJECT_ID
             yarn link aws-amplify
             yarn link aws-amplify-react
       - run:
