@@ -60,16 +60,16 @@ jobs:
           at: ./
       - restore_cache:
           key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "yarn.lock" }}
-      - run:
-          name: "Link aws-amplify"
-          command: |
-            cd packages/aws-amplify
-            yarn link
-      - run:
-          name: "Link aws-amplify-react"
-          command: |
-            cd packages/aws-amplify-react
-            yarn link
+      # - run:
+      #     name: "Link aws-amplify"
+      #     command: |
+      #       cd packages/aws-amplify
+      #       yarn link
+      # - run:
+      #     name: "Link aws-amplify-react"
+      #     command: |
+      #       cd packages/aws-amplify-react
+      #       yarn link
       - run: 
           name: "Clone auth test package, initialize mobilehub via cli, and link amplify packages"
           command: |
@@ -79,23 +79,22 @@ jobs:
             git clone $AUTH_CLONE_URL
             cd aws-amplify-cypress-auth
             yarn
-            yarn link aws-amplify
-            yarn link aws-amplify-react
+            # yarn link aws-amplify
+            # yarn link aws-amplify-react
       - run:
           name: "Start Auth test server in background"
           command: |
-            cd aws-amplify-cypress-auth
-            ls
+            cd ~/aws-amplify-cypress-auth
             yarn start
           background: true
-      - run:
-          name: "Run cypress tests for aws-amplify-react"
-          command: |
-            yarn cypress --scope aws-amplify-react
-      - store_artifacts:
-          path: cypress/videos
-      - store_artifacts:
-          path: cypress/screenshots
+      # - run:
+      #     name: "Run cypress tests for aws-amplify-react"
+      #     command: |
+      #       yarn cypress --scope aws-amplify-react
+      # - store_artifacts:
+      #     path: cypress/videos
+      # - store_artifacts:
+      #     path: cypress/screenshots
   deploy:
     <<: *defaults
     steps:
@@ -121,25 +120,30 @@ workflows:
   version: 2
   build_test_deploy:
     jobs:
-      - build
-      - unit_test:
-          requires:
-            - build
       - integration_test_auth:
-          filters:
-            branches:
-              only:
-                - circle-cypress-no-cli
-                - release
-                - master
-          requires:
-            - build
-      - deploy:
-          filters:
-            branches:
-              only:
-                - release
-                - master
-                - beta
-          requires:
-            - unit_test
+            filters:
+              branches:
+                only:
+                  - circle-cypress-no-cli
+      # - build
+      # - unit_test:
+      #     requires:
+      #       - build
+      # - integration_test_auth:
+      #     filters:
+      #       branches:
+      #         only:
+      #           - circle-cypress-no-cli
+      #           - release
+      #           - master
+      #     requires:
+      #       - build
+      # - deploy:
+      #     filters:
+      #       branches:
+      #         only:
+      #           - release
+      #           - master
+      #           - beta
+      #     requires:
+      #       - unit_test
