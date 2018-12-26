@@ -70,12 +70,6 @@ jobs:
           command: |
             cd packages/aws-amplify-react
             yarn link
-      # - run:
-      #     name: "Install awsmobile cli"
-      #     command: |
-      #       echo 'export PATH=$(yarn global bin):$PATH' >> $BASH_ENV
-      #       source $BASH_ENV
-      #       yarn global add awsmobile-cli
       - run: 
           name: "Clone auth test package, initialize mobilehub via cli, and link amplify packages"
           command: |
@@ -90,6 +84,7 @@ jobs:
           name: "Start Auth test server in background"
           command: |
             cd aws-amplify-cypress-auth
+            ls
             yarn start
           background: true
       - run:
@@ -133,6 +128,7 @@ workflows:
           filters:
             branches:
               only:
+                - circle-cypress-no-cli
                 - release
                 - master
           requires:
