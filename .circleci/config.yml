@@ -78,6 +78,8 @@ jobs:
             cd ~
             git clone $AUTH_CLONE_URL
             cd aws-amplify-cypress-auth
+            ls src
+            
             yarn
             # yarn link aws-amplify
             # yarn link aws-amplify-react
@@ -87,6 +89,8 @@ jobs:
             cd ~/aws-amplify-cypress-auth
             echo $AWS_EXPORTS_AUTH;
             echo $AWS_EXPORTS_AUTH > src/aws-exports.js
+            cat src/aws-exports.js
+            ls src
             yarn start
           background: true
       - run:
