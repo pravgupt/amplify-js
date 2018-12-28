@@ -60,16 +60,16 @@ jobs:
           at: ./
       - restore_cache:
           key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "yarn.lock" }}
-      # - run:
-      #     name: "Link aws-amplify"
-      #     command: |
-      #       cd packages/aws-amplify
-      #       yarn link
-      # - run:
-      #     name: "Link aws-amplify-react"
-      #     command: |
-      #       cd packages/aws-amplify-react
-      #       yarn link
+      - run:
+          name: "Link aws-amplify"
+          command: |
+            cd packages/aws-amplify
+            yarn link
+      - run:
+          name: "Link aws-amplify-react"
+          command: |
+            cd packages/aws-amplify-react
+            yarn link
       - run: 
           name: "Clone auth test package, initialize mobilehub via cli, and link amplify packages"
           command: |
@@ -78,19 +78,14 @@ jobs:
             cd ~
             git clone $AUTH_CLONE_URL
             cd aws-amplify-cypress-auth
-            ls src
-            
             yarn
-            # yarn link aws-amplify
-            # yarn link aws-amplify-react
+            yarn link aws-amplify
+            yarn link aws-amplify-react
+            echo $AWS_EXPORTS_AUTH > src/aws-exports.js
       - run:
           name: "Start Auth test server in background"
           command: |
             cd ~/aws-amplify-cypress-auth
-            echo $AWS_EXPORTS_AUTH;
-            echo $AWS_EXPORTS_AUTH > src/aws-exports.js
-            cat src/aws-exports.js
-            ls src
             yarn start
           background: true
       - run:
