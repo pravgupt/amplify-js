@@ -48,7 +48,7 @@ export default class XR {
      * @return {Object} - The current configuration
      */
     configure(options: XROptions) {
-        const opt = options ? options.XR || options : {};
+        const opt = options ? options.XR || options.xr || options : {};
         logger.debug('configure XR', { opt });
 
         this._options = Object.assign({}, this._options, opt);
