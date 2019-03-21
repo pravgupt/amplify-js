@@ -243,9 +243,9 @@ export default class AWSPinpointProvider implements AnalyticsProvider {
         const { event, config } = params;
 
         switch (event.name) {
-            case '_session_start':
+            case '_session.start':
                 return this._startSession(params);
-            case '_session_stop':
+            case '_session.stop':
                 return this._stopSession(params);
             case '_update_endpoint':
                 return this._updateEndpoint(params);
@@ -297,11 +297,13 @@ export default class AWSPinpointProvider implements AnalyticsProvider {
 
             request.send((err, data) => {
                 if (err) {
-                    logger.debug('record event failed. ', err);
-                    logger.error(
-                        'Please ensure you have updated your Pinpoint IAM Policy' +
-                        'with the Action: \"mobiletargeting:PutEvents\" in order to ' +
-                        'continue using AWS Pinpoint Service'
+                    logger.error('record event failed. ', err);
+                    logger.warn(
+                        'If you have not updated your Pinpoint IAM Policy' + 
+                        ' with the Action: \"mobiletargeting:PutEvents\" yet, please do it.' + 
+                        ' This action is not necessary for now' + 
+                        ' but in order to avoid breaking changes in the future,' + 
+                        ' please update it as soon as possible.'
                     );
                     res(false);
                 }
@@ -379,7 +381,7 @@ export default class AWSPinpointProvider implements AnalyticsProvider {
                 if (err) {
                     logger.debug('updateEndpoint failed', err);
                     if (err.message === 'Exceeded maximum endpoint per user count 10') {
-                        this._removeUnusedEndpoints(appId, credentials.identityId)
+                        this._removeUnusedEndpoints(appId, request.User.UserId)
                         .then(() => {
                             logger.debug('Remove the unused endpoints successfully');
                             return res(false);
