@@ -81,11 +81,11 @@ jobs:
             yarn
       - run: 
           command: |
-            ls
+            ls ~
       - persist_to_workspace:
-          root: .
+          root: ~/amplify-js-samples-staging
           paths:
-            - amplify-js-samples-staging
+            - .
   integration_test_react:
     <<: *defaults
     steps:
