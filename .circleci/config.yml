@@ -100,18 +100,18 @@ jobs:
       - run:
           name: "Start React Authenticator Sample server in background"
           command: |
-            cd ../amplify-js-samples-staging/samples/react/auth/with-authenticator
+            cd amplify-js-samples-staging/samples/react/auth/with-authenticator
             yarn start
           background: true
       - run:
           name: "Run cypress tests for React Authenticator Sample"
           command: |
-            cd ../amplify-js-samples-staging
+            cd amplify-js-samples-staging
             yarn cypress:react
       - store_artifacts:
-          path: /root/app/amplify-js-samples-staging/cypress/videos
+          path: amplify-js-samples-staging/cypress/videos
       - store_artifacts:
-          path: /root/app/amplify-js-samples-staging/cypress/screenshots
+          path: amplify-js-samples-staging/cypress/screenshots
   integration_test_vue:
     <<: *defaults
     steps:
