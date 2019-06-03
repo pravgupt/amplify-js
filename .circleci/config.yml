@@ -93,7 +93,7 @@ jobs:
       - attach_workspace:
           at: ./
       - restore_cache:
-          key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "amplify-js-samples-staging/yarn.lock" }}
       - run:
           name: "Install React Authenticator sample"
           command: |
@@ -121,7 +121,7 @@ jobs:
       - attach_workspace:
           at: ./
       - restore_cache:
-          key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "amplify-js-samples-staging/yarn.lock" }}
       - run:
           name: "Install React Authenticator sample"
           command: |
