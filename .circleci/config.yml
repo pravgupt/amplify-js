@@ -56,10 +56,10 @@ jobs:
   integration_test_setup:
     <<: *defaults
     steps:
-      - attach_workspace:
-          at: ./
-      - restore_cache:
-          key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "yarn.lock" }}
+      # - attach_workspace:
+      #     at: ./
+      # - restore_cache:
+      #     key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "yarn.lock" }}
       # - run:
       #     name: "Link aws-amplify"
       #     command: |
