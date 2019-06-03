@@ -79,10 +79,11 @@ jobs:
             git clone $AMPLIFY_JS_SAMPLES_STAGING_URL
             cd amplify-js-samples-staging
             yarn
+            ls
       - persist_to_workspace:
-          root: .
+          root: amplify-js-samples-staging
           paths:
-            - root/app/amplify-js-samples-staging
+            - .
   integration_test_react:
     <<: *defaults
     steps:
@@ -161,9 +162,9 @@ workflows:
   build_test_deploy:
     jobs:
       - build
-      - unit_test:
-          requires:
-            - build
+      # - unit_test:
+      #     requires:
+      #       - build
       - integration_test_setup:
           filters:
             branches:
