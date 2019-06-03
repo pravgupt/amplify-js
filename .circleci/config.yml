@@ -192,12 +192,12 @@ workflows:
                 - circle-test
           requires:
             - integration_test_setup
-      - deploy:
-          filters:
-            branches:
-              only:
-                - release
-                - master
-                - beta
-          requires:
-            - unit_test
+      # - deploy:
+      #     filters:
+      #       branches:
+      #         only:
+      #           - release
+      #           - master
+      #           - beta
+      #     requires:
+      #       - unit_test
