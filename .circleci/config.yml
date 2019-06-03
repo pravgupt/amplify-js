@@ -80,7 +80,7 @@ jobs:
             cd amplify-js-samples-staging
             yarn
       - save_cache:
-          key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "amplify-js-samples-staging/yarn.lock" }}
           paths:
             - ~/.cache ## cache both yarn and Cypress
       - persist_to_workspace:
