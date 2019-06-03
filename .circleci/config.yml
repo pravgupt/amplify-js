@@ -60,16 +60,16 @@ jobs:
           at: ./
       - restore_cache:
           key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "yarn.lock" }}
-      - run:
-          name: "Link aws-amplify"
-          command: |
-            cd packages/aws-amplify
-            yarn link
-      - run:
-          name: "Link aws-amplify-react"
-          command: |
-            cd packages/aws-amplify-react
-            yarn link
+      # - run:
+      #     name: "Link aws-amplify"
+      #     command: |
+      #       cd packages/aws-amplify
+      #       yarn link
+      # - run:
+      #     name: "Link aws-amplify-react"
+      #     command: |
+      #       cd packages/aws-amplify-react
+      #       yarn link
       - run: 
           name: "Clone Amplify JS Samples repo, install cypress, install react samples authenticator and link amplify packages"
           command: |
@@ -171,8 +171,8 @@ workflows:
                 - release
                 - master
                 - circle-test
-          requires:
-            - build
+          # requires:
+            # - build
       - integration_test_react:
           filters:
             branches:
