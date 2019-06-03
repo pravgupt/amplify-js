@@ -82,7 +82,7 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - /root/app/amplify-js-samples-staging
+            - root/app/amplify-js-samples-staging
   integration_test_react:
     <<: *defaults
     steps:
