@@ -79,9 +79,10 @@ jobs:
             git clone $AMPLIFY_JS_SAMPLES_STAGING_URL
             cd amplify-js-samples-staging
             yarn
-      - run: 
-          command: |
-            ls ~
+      - save_cache:
+          key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/.cache ## cache both yarn and Cypress
       - persist_to_workspace:
           root: ~/
           paths:
@@ -91,6 +92,8 @@ jobs:
     steps:
       - attach_workspace:
           at: ./
+      - restore_cache:
+          key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "yarn.lock" }}
       - run:
           name: "Install React Authenticator sample"
           command: |
@@ -117,26 +120,28 @@ jobs:
     steps:
       - attach_workspace:
           at: ./
+      - restore_cache:
+          key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "yarn.lock" }}
       - run:
           name: "Install React Authenticator sample"
           command: |
-            cd ~/amplify-js-samples-staging/samples/vue/auth/amplify-authenticator
+            cd amplify-js-samples-staging/samples/vue/auth/amplify-authenticator
             yarn
       - run:
           name: "Start Vue Authenticator Sample server in background"
           command: |
-            cd ../amplify-js-samples-staging/samples/vue/auth/amplify-authenticator
+            cd amplify-js-samples-staging/samples/vue/auth/amplify-authenticator
             yarn start
           background: true
       - run:
           name: "Run cypress tests for Vue Authenticator Sample"
           command: |
-            cd ../amplify-js-samples-staging
+            cd amplify-js-samples-staging
             yarn cypress:vue
       - store_artifacts:
-          path: /root/app/amplify-js-samples-staging/cypress/videos
+          path: amplify-js-samples-staging/cypress/videos
       - store_artifacts:
-          path: /root/app/amplify-js-samples-staging/cypress/screenshots
+          path: amplify-js-samples-staging/cypress/screenshots
   deploy:
     <<: *defaults
     steps:
