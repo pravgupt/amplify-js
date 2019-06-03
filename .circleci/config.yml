@@ -53,7 +53,7 @@ jobs:
       - run: yarn run test --scope aws-amplify-react
       - run: yarn run test --scope aws-amplify-angular
       - run: yarn run test --scope aws-amplify-vue
-  integration_test_auth:
+  integration_test_setup:
     <<: *defaults
     steps:
       - attach_workspace:
@@ -71,31 +71,69 @@ jobs:
             cd packages/aws-amplify-react
             yarn link
       - run: 
-          name: "Clone auth test package, initialize mobilehub via cli, and link amplify packages"
+          name: "Clone Amplify JS Samples repo, install cypress, install react samples authenticator and link amplify packages"
           command: |
-            mkdir ~/.ssh
+            mkdir ~/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
             echo $SSH_HOST_PUBLIC_KEY >> ~/.ssh/known_hosts
             cd ~
-            git clone $AUTH_CLONE_URL
-            cd aws-amplify-cypress-auth
+            git clone $AMPLIFY_JS_SAMPLES_STAGING_URL
+            cd amplify-js-samples-staging
             yarn
-            yarn link aws-amplify
-            yarn link aws-amplify-react
-            echo $AWS_EXPORTS_AUTH > src/aws-exports.js
+      - persist_to_workspace:
+          root: .
+          paths:
+            - /root/app/amplify-js-samples-staging
+  integration_test_react:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ./
       - run:
-          name: "Start Auth test server in background"
+          name: "Install React Authenticator sample"
           command: |
-            cd ~/aws-amplify-cypress-auth
+            ls
+            cd amplify-js-samples-staging/samples/react/auth/with-authenticator
+            yarn
+      - run:
+          name: "Start React Authenticator Sample server in background"
+          command: |
+            cd ../amplify-js-samples-staging/samples/react/auth/with-authenticator
             yarn start
           background: true
       - run:
-          name: "Run cypress tests for aws-amplify-react"
+          name: "Run cypress tests for React Authenticator Sample"
           command: |
-            yarn cypress --scope aws-amplify-react
+            cd ../amplify-js-samples-staging
+            yarn cypress:react
       - store_artifacts:
-          path: /root/app/packages/aws-amplify-react/cypress/videos
+          path: /root/app/amplify-js-samples-staging/cypress/videos
       - store_artifacts:
-          path: /root/app/packages/aws-amplify-react/cypress/screenshots
+          path: /root/app/amplify-js-samples-staging/cypress/screenshots
+  integration_test_vue:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ./
+      - run:
+          name: "Install React Authenticator sample"
+          command: |
+            cd ~/amplify-js-samples-staging/samples/vue/auth/amplify-authenticator
+            yarn
+      - run:
+          name: "Start Vue Authenticator Sample server in background"
+          command: |
+            cd ../amplify-js-samples-staging/samples/vue/auth/amplify-authenticator
+            yarn start
+          background: true
+      - run:
+          name: "Run cypress tests for Vue Authenticator Sample"
+          command: |
+            cd ../amplify-js-samples-staging
+            yarn cypress:vue
+      - store_artifacts:
+          path: /root/app/amplify-js-samples-staging/cypress/videos
+      - store_artifacts:
+          path: /root/app/amplify-js-samples-staging/cypress/screenshots
   deploy:
     <<: *defaults
     steps:
@@ -126,14 +164,33 @@ workflows:
       - unit_test:
           requires:
             - build
-      - integration_test_auth:
+      - integration_test_setup:
           filters:
             branches:
               only:
                 - release
                 - master
+                - cypress-root
           requires:
             - build
+      - integration_test_react:
+          filters:
+            branches:
+              only:
+                - release
+                - master
+                - cypress-root
+          requires:
+            - integration_test_setup
+      - integration_test_vue:
+          filters:
+            branches:
+              only:
+                - release
+                - master
+                - cypress-root
+          requires:
+            - integration_test_setup
       - deploy:
           filters:
             branches:
