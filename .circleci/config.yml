@@ -78,7 +78,6 @@ jobs:
             git clone $AMPLIFY_JS_SAMPLES_STAGING_URL
             cd amplify-js-samples-staging
             yarn
-            ls
       - save_cache:
           key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "amplify-js-samples-staging/yarn.lock" }}
           paths:
@@ -95,15 +94,10 @@ jobs:
       - restore_cache:
           key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "amplify-js-samples-staging/yarn.lock" }}
       - run:
-          name: "Install React Authenticator sample"
+          name: "Install React Authenticator sample and Start React Authenticator Sample server in background"
           command: |
-            ls
             cd amplify-js-samples-staging/samples/react/auth/with-authenticator
             yarn
-      - run:
-          name: "Start React Authenticator Sample server in background"
-          command: |
-            cd amplify-js-samples-staging/samples/react/auth/with-authenticator
             yarn start
           background: true
       - run:
