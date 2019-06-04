@@ -34,7 +34,7 @@ jobs:
           paths:
             - ~/.ssh
       - persist_to_workspace:
-          root: /
+          root: ~
           paths: app
   unit_test:
     <<: *defaults
