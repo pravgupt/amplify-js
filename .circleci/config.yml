@@ -56,34 +56,35 @@ jobs:
   integration_test_setup:
     <<: *defaults
     steps:
-      - attach_workspace:
-          at: ./
-      - restore_cache:
-          key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "yarn.lock" }}
-      - run:
-          name: "Link aws-amplify"
-          command: |
-            cd packages/aws-amplify
-            yarn link
-      - run:
-          name: "Link aws-amplify-react"
-          command: |
-            cd packages/aws-amplify-react
-            yarn link
+      # - attach_workspace:
+      #     at: ./
+      # - restore_cache:
+      #     key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "yarn.lock" }}
+      # - run:
+      #     name: "Link aws-amplify"
+      #     command: |
+      #       cd packages/aws-amplify
+      #       yarn link
+      # - run:
+      #     name: "Link aws-amplify-react"
+      #     command: |
+      #       cd packages/aws-amplify-react
+      #       yarn link
       - run: 
           name: "Clone Amplify JS Samples repo, install cypress, install react samples authenticator and link amplify packages"
           command: |
             mkdir ~/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
             echo $SSH_HOST_PUBLIC_KEY >> ~/.ssh/known_hosts
+            cd ~
             git clone $AMPLIFY_JS_SAMPLES_STAGING_URL
             cd amplify-js-samples-staging
             yarn
       - save_cache:
-          key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "amplify-js-samples-staging/yarn.lock" }}
+          key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "~/amplify-js-samples-staging/yarn.lock" }}
           paths:
             - ~/.cache ## cache both yarn and Cypress
       - persist_to_workspace:
-          root: .
+          root: ~
           paths:
             - amplify-js-samples-staging
   integration_test_react:
@@ -92,12 +93,16 @@ jobs:
       - attach_workspace:
           at: ./
       - restore_cache:
-          key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "amplify-js-samples-staging/yarn.lock" }}
+          key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "~/amplify-js-samples-staging/yarn.lock" }}
       - run:
-          name: "Install React Authenticator sample and Start React Authenticator Sample server in background"
+          name: "Install React Authenticator sample"
           command: |
             cd amplify-js-samples-staging/samples/react/auth/with-authenticator
             yarn
+      - run:
+          name: "Start React Authenticator Sample server in background"
+          command: |
+            cd amplify-js-samples-staging/samples/react/auth/with-authenticator
             yarn start
           background: true
       - run:
@@ -162,10 +167,10 @@ workflows:
   version: 2
   build_test_deploy:
     jobs:
-      - build
-      - unit_test:
-          requires:
-            - build
+      # - build
+      # - unit_test:
+      #     requires:
+      #       - build
       - integration_test_setup:
           filters:
             branches:
@@ -173,8 +178,8 @@ workflows:
                 - release
                 - master
                 - circle-test
-          requires:
-            - build
+          # requires:
+          #   - build
       - integration_test_react:
           filters:
             branches:
@@ -193,12 +198,12 @@ workflows:
                 - circle-test
           requires:
             - integration_test_setup
-      - deploy:
-          filters:
-            branches:
-              only:
-                - release
-                - master
-                - beta
-          requires:
-            - unit_test
+      # - deploy:
+      #     filters:
+      #       branches:
+      #         only:
+      #           - release
+      #           - master
+      #           - beta
+      #     requires:
+      #       - unit_test
