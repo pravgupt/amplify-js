@@ -16,26 +16,26 @@ defaults: &defaults
           TERM: xterm
 
 jobs:
-  build:
-    <<: *defaults
-    steps:
-      - checkout
-      - run: yarn config set workspaces-experimental true
-      - run: yarn
-      - run: yarn run bootstrap
-      - run: yarn run build
-      - run: yarn run coverage
-      - save_cache:
-          key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "yarn.lock" }}
-          paths:
-            - ~/.cache ## cache both yarn and Cypress
-      - save_cache:
-          key: amplify-ssh-deps-{{ .Branch }}
-          paths:
-            - ~/.ssh
-      - persist_to_workspace:
-          root: .
-          paths: .
+  # build:
+  #   <<: *defaults
+  #   steps:
+  #     - checkout
+  #     - run: yarn config set workspaces-experimental true
+  #     - run: yarn
+  #     - run: yarn run bootstrap
+  #     - run: yarn run build
+  #     - run: yarn run coverage
+  #     - save_cache:
+  #         key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "yarn.lock" }}
+  #         paths:
+  #           - ~/.cache ## cache both yarn and Cypress
+  #     - save_cache:
+  #         key: amplify-ssh-deps-{{ .Branch }}
+  #         paths:
+  #           - ~/.ssh
+  #     - persist_to_workspace:
+  #         root: .
+  #         paths: .
   unit_test:
     <<: *defaults
     steps:
@@ -56,8 +56,8 @@ jobs:
   integration_test_setup:
     <<: *defaults
     steps:
-      - attach_workspace:
-          at: ./
+      # - attach_workspace:
+      #     at: ./
       # - restore_cache:
       #     key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "yarn.lock" }}
       # - run:
