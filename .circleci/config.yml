@@ -56,8 +56,8 @@ jobs:
   integration_test_setup:
     <<: *defaults
     steps:
-      # - attach_workspace:
-      #     at: ./
+      - attach_workspace:
+          at: ./
       # - restore_cache:
       #     key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "yarn.lock" }}
       # - run:
