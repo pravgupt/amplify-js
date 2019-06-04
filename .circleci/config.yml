@@ -34,13 +34,13 @@ jobs:
           paths:
             - ~/.ssh
       - persist_to_workspace:
-          root: .
-          paths: .
+          root: /
+          paths: app
   unit_test:
     <<: *defaults
     steps:
       - attach_workspace:
-          at: ./
+          at: /app
       - run: yarn run test --scope @aws-amplify/auth
       - run: yarn run test --scope @aws-amplify/api
       - run: yarn run test --scope @aws-amplify/analytics
@@ -57,7 +57,7 @@ jobs:
     <<: *defaults
     steps:
       - attach_workspace:
-          at: ./
+          at: /
       - restore_cache:
           key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "yarn.lock" }}
       - run:
@@ -84,14 +84,14 @@ jobs:
           paths:
             - ~/.cache ## cache both yarn and Cypress
       - persist_to_workspace:
-          root: ~
+          root: .
           paths:
             - amplify-js-samples-staging
   integration_test_react:
     <<: *defaults
     steps:
       - attach_workspace:
-          at: ./
+          at: /
       - restore_cache:
           key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "~/amplify-js-samples-staging/yarn.lock" }}
       - run:
