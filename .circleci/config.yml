@@ -61,7 +61,6 @@ jobs:
           at: ./
       - restore_cache:
           key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "yarn.lock" }}
-          path
       - run:
           name: "Link aws-amplify"
           command: |
