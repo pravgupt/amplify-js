@@ -42,7 +42,7 @@ jobs:
     working_directory: ~/amplify-js
     steps:
       - attach_workspace:
-          at: ./amplify-js
+          at: ./
       - run: yarn run test --scope @aws-amplify/auth
       - run: yarn run test --scope @aws-amplify/api
       - run: yarn run test --scope @aws-amplify/analytics
