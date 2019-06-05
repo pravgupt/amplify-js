@@ -61,16 +61,6 @@ jobs:
           at: ./
       - restore_cache:
           key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "yarn.lock" }}
-      - run:
-          name: "Link aws-amplify"
-          command: |
-            cd packages/aws-amplify
-            yarn link
-      - run:
-          name: "Link aws-amplify-react"
-          command: |
-            cd packages/aws-amplify-react
-            yarn link
       - run: 
           name: "Clone Amplify JS Samples repo, install cypress, install react samples authenticator and link amplify packages"
           command: |
@@ -81,7 +71,7 @@ jobs:
             cd amplify-js-samples-staging
             yarn
       - save_cache:
-          key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "amplify-js-samples-staging/yarn.lock" }}
+          key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "/root/amplify-js-samples-staging/yarn.lock" }}
           paths:
             - ~/.cache ## cache both yarn and Cypress
       - persist_to_workspace:
