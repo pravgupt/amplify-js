@@ -42,7 +42,7 @@ jobs:
     working_directory: ~/amplify-js
     steps:
       - attach_workspace:
-          at: ./
+          at: ./amplify-js
       - run: yarn run test --scope @aws-amplify/auth
       - run: yarn run test --scope @aws-amplify/api
       - run: yarn run test --scope @aws-amplify/analytics
@@ -57,6 +57,7 @@ jobs:
       - run: yarn run test --scope aws-amplify-vue
   integration_test_setup:
     <<: *defaults
+    working_directory: ~/
     steps:
       # - attach_workspace:
       #     at: ./
@@ -72,7 +73,7 @@ jobs:
             cd amplify-js-samples-staging
             yarn
       - save_cache:
-          key: amplify-js-{{ .Branch }}-{{ checksum "/root/amplify-js-samples-staging/yarn.lock" }}
+          key: amplify-js-{{ .Branch }}-{{ checksum "amplify-js-samples-staging/yarn.lock" }}
           paths:
             - ~/.cache ## cache both yarn and Cypress
       - persist_to_workspace:
