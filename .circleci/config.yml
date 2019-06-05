@@ -75,7 +75,7 @@ jobs:
           paths:
             - ~/.cache ## cache both yarn and Cypress
       - persist_to_workspace:
-          root: .
+          root: /root
           paths:
             - amplify-js-samples-staging
   integration_test_react:
