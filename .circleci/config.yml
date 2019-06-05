@@ -21,10 +21,10 @@ jobs:
     steps:
       - checkout
       - run: yarn config set workspaces-experimental true
-      - run: yarn
-      - run: yarn run bootstrap
-      - run: yarn run build
-      - run: yarn run coverage
+      # - run: yarn
+      # - run: yarn run bootstrap
+      # - run: yarn run build
+      # - run: yarn run coverage
       - save_cache:
           key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "yarn.lock" }}
           paths:
