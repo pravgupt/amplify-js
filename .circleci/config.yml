@@ -29,6 +29,7 @@ jobs:
           key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "yarn.lock" }}
           paths:
             - ~/.cache ## cache both yarn and Cypress
+            # - ~/.cache/yarn
       - save_cache:
           key: amplify-ssh-deps-{{ .Branch }}
           paths:
@@ -60,6 +61,7 @@ jobs:
           at: ./
       - restore_cache:
           key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          path
       - run:
           name: "Link aws-amplify"
           command: |
@@ -73,8 +75,6 @@ jobs:
       - run: 
           name: "Clone Amplify JS Samples repo, install cypress, install react samples authenticator and link amplify packages"
           command: |
-            pwd
-            ls ~
             mkdir ~/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
             echo $SSH_HOST_PUBLIC_KEY >> ~/.ssh/known_hosts
             cd ~
@@ -82,7 +82,7 @@ jobs:
             cd amplify-js-samples-staging
             yarn
       - save_cache:
-          key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "~/amplify-js-samples-staging/yarn.lock" }}
+          key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "amplify-js-samples-staging/yarn.lock" }}
           paths:
             - ~/.cache ## cache both yarn and Cypress
       - persist_to_workspace:
@@ -95,7 +95,7 @@ jobs:
       - attach_workspace:
           at: ./
       - restore_cache:
-          key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "~/amplify-js-samples-staging/yarn.lock" }}
+          key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "amplify-js-samples-staging/yarn.lock" }}
       - run:
           name: "Install React Authenticator sample"
           command: |
@@ -122,7 +122,7 @@ jobs:
       - attach_workspace:
           at: ./
       - restore_cache:
-          key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "~/amplify-js-samples-staging/yarn.lock" }}
+          key: amplify-yarn-deps-{{ .Branch }}-{{ checksum "amplify-js-samples-staging/yarn.lock" }}
       - run:
           name: "Install React Authenticator sample"
           command: |
