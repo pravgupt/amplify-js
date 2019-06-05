@@ -8,7 +8,6 @@ machine:
       PATH: "${PATH}:${HOME}/${CIRCLE_PROJECT_REPONAME}/node_modules/.bin"
 
 defaults: &defaults
-  working_directory: ~/app
   docker:
     - image: cypress/base:10
       environment:
@@ -18,13 +17,14 @@ defaults: &defaults
 jobs:
   build:
     <<: *defaults
+    working_directory: ~/amplify-js
     steps:
       - checkout
       - run: yarn config set workspaces-experimental true
       - run: yarn
-      - run: yarn run bootstrap
-      - run: yarn run build
-      - run: yarn run coverage
+      # - run: yarn run bootstrap
+      # - run: yarn run build
+      # - run: yarn run coverage
       # - save_cache:
       #     key: amplify-js-{{ .Branch }}-{{ checksum "yarn.lock" }}
       #     paths:
@@ -35,8 +35,8 @@ jobs:
           paths:
             - ~/.ssh
       - persist_to_workspace:
-          root: .
-          paths: .
+          root: ~
+          paths: amplify-js
   unit_test:
     <<: *defaults
     steps:
