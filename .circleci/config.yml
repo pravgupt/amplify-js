@@ -35,7 +35,7 @@ jobs:
           paths:
             - ~/.ssh
       - persist_to_workspace:
-          root: ~
+          root: /root
           paths: amplify-js
   unit_test:
     <<: *defaults
