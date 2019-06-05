@@ -57,8 +57,8 @@ jobs:
   integration_test_setup:
     <<: *defaults
     steps:
-      - attach_workspace:
-          at: ./
+      # - attach_workspace:
+      #     at: ./
       # - restore_cache:
       #     key: amplify-js-{{ .Branch }}-{{ checksum "yarn.lock" }}
       - run: 
@@ -66,7 +66,7 @@ jobs:
           command: |
             mkdir ~/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
             echo $SSH_HOST_PUBLIC_KEY >> ~/.ssh/known_hosts
-            cd ~
+            cd
             git clone $AMPLIFY_JS_SAMPLES_STAGING_URL
             cd amplify-js-samples-staging
             yarn
