@@ -22,9 +22,9 @@ jobs:
       - checkout
       - run: yarn config set workspaces-experimental true
       - run: yarn
-      - run: yarn run bootstrap
-      - run: yarn run build
-      - run: yarn run coverage
+      # - run: yarn run bootstrap
+      # - run: yarn run build
+      # - run: yarn run coverage
       # - save_cache:
       #     key: amplify-js-{{ .Branch }}-{{ checksum "yarn.lock" }}
       #     paths:
@@ -43,21 +43,18 @@ jobs:
     steps:
       - attach_workspace:
           at: /root/amplify-js
-      - run: 
-          name: "Run amplify-js unit tests"
-          command: |
-            yarn run test --scope @aws-amplify/auth
-            yarn run test --scope @aws-amplify/api
-            yarn run test --scope @aws-amplify/analytics
-            yarn run test --scope @aws-amplify/cache
-            yarn run test --scope @aws-amplify/core
-            yarn run test --scope @aws-amplify/interactions
-            yarn run test --scope @aws-amplify/pubsub
-            yarn run test --scope @aws-amplify/storage
-            yarn run test --scope @aws-amplify/xr
-            yarn run test --scope aws-amplify-react
-            yarn run test --scope aws-amplify-angular
-            yarn run test --scope aws-amplify-vue
+      - run: yarn run test --scope @aws-amplify/auth
+      - run: yarn run test --scope @aws-amplify/api
+      - run: yarn run test --scope @aws-amplify/analytics
+      - run: yarn run test --scope @aws-amplify/cache
+      - run: yarn run test --scope @aws-amplify/core
+      - run: yarn run test --scope @aws-amplify/interactions
+      - run: yarn run test --scope @aws-amplify/pubsub
+      - run: yarn run test --scope @aws-amplify/storage
+      - run: yarn run test --scope @aws-amplify/xr
+      - run: yarn run test --scope aws-amplify-react
+      - run: yarn run test --scope aws-amplify-angular
+      - run: yarn run test --scope aws-amplify-vue
   integration_test_setup:
     <<: *defaults
     working_directory: ~/
@@ -80,15 +77,14 @@ jobs:
           paths:
             - ~/.cache ## cache both yarn and Cypress
       - persist_to_workspace:
-          root: /root
-          paths:
-            - amplify-js-samples-staging
+          root: .
+          paths: amplify-js-samples-staging
   integration_test_react:
     <<: *defaults
     working_directory: ~/
     steps:
       - attach_workspace:
-          at: /root
+          at: /root/amplify-js
       - restore_cache:
           key: amplify-js-{{ .Branch }}-{{ checksum "amplify-js-samples-staging/yarn.lock" }}
       - run:
