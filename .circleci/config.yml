@@ -35,8 +35,8 @@ jobs:
           paths:
             - ~/.ssh
       - persist_to_workspace:
-          root: .
-          paths: .
+          root: /root
+          paths: amplify-js
   unit_test:
     <<: *defaults
     working_directory: ~/amplify-js
@@ -68,7 +68,6 @@ jobs:
           command: |
             mkdir ~/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
             echo $SSH_HOST_PUBLIC_KEY >> ~/.ssh/known_hosts
-            cd
             git clone $AMPLIFY_JS_SAMPLES_STAGING_URL
             cd amplify-js-samples-staging
             yarn
@@ -77,14 +76,14 @@ jobs:
           paths:
             - ~/.cache ## cache both yarn and Cypress
       - persist_to_workspace:
-          root: .
+          root: /root
           paths: amplify-js-samples-staging
   integration_test_react:
     <<: *defaults
     working_directory: ~/
     steps:
       - attach_workspace:
-          at: /root/amplify-js
+          at: /root
       - restore_cache:
           key: amplify-js-{{ .Branch }}-{{ checksum "amplify-js-samples-staging/yarn.lock" }}
       - run:
