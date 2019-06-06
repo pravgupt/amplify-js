@@ -39,7 +39,7 @@ jobs:
           paths: .
   unit_test:
     <<: *defaults
-    working_directory: ./
+    working_directory: ~/amplify-js
     steps:
       - attach_workspace:
           at: /root/amplify-js
