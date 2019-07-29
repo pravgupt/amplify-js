@@ -27,8 +27,10 @@ import {
   Hub
 } from '@aws-amplify/core';
 
-const SHA256 = require("crypto-js/sha256");
-const Base64 = require("crypto-js/enc-base64");
+// const SHA256 = require("crypto-js/sha256");
+import SHA256 from 'crypto-js/sha256';
+// const Base64 = require("crypto-js/enc-base64");
+import Base64 from 'crypto-js/enc-base64';
 
 const AMPLIFY_SYMBOL = ((typeof Symbol !== 'undefined' && typeof Symbol.for === 'function') ?
     Symbol.for('amplify_default') : '@@amplify_default') as Symbol;

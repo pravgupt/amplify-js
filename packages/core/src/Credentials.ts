@@ -1,6 +1,6 @@
 import { ConsoleLogger as Logger } from './Logger';
 import { StorageHelper } from './StorageHelper';
-import { AWS } from './Facet';
+// import { AWS } from './Facet';
 import { makeQuerablePromise } from './JS';
 import { FacebookOAuth, GoogleOAuth } from './OAuthHelper';
 import { ICredentials } from './types';
@@ -60,11 +60,11 @@ export class CredentialsClass {
         logger.debug('picking up credentials');
         if (!this._gettingCredPromise || !this._gettingCredPromise.isPending()) {
             logger.debug('getting new cred promise');
-            if (AWS.config && AWS.config.credentials && AWS.config.credentials instanceof AWS.Credentials) {
-                this._gettingCredPromise = makeQuerablePromise(this._setCredentialsFromAWS());
-            } else {
+            // if (AWS.config && AWS.config.credentials && AWS.config.credentials instanceof AWS.Credentials) {
+            //     this._gettingCredPromise = makeQuerablePromise(this._setCredentialsFromAWS());
+            // } else {
                 this._gettingCredPromise = makeQuerablePromise(this._keepAlive());
-            }
+            // }
         } else {
             logger.debug('getting old cred promise');
         }

@@ -32,7 +32,7 @@ import {
 } from './types';
 
 import {
-    AWS,
+    // AWS,
     ConsoleLogger as Logger,
     Constants,
     Hub,
@@ -101,11 +101,11 @@ export class AuthClass {
 
         this.currentUserCredentials = this.currentUserCredentials.bind(this);
 
-        if (AWS.config) {
-            AWS.config.update({ customUserAgent: Constants.userAgent });
-        } else {
-            logger.warn('No AWS.config');
-        }
+        // if (AWS.config) {
+        //     AWS.config.update({ customUserAgent: Constants.userAgent });
+        // } else {
+        //     logger.warn('No AWS.config');
+        // }
 
         Hub.listen('auth', ({ payload }) => {
             const { event } = payload;

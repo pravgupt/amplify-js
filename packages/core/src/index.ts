@@ -11,11 +11,11 @@
  * and limitations under the License.
  */
 
-import { AWS } from './Facet';
+// import { AWS } from './Facet';
 import { ConsoleLogger as Logger } from './Logger';
 import { Amplify } from './Amplify';
 
-export * from './Facet';
+// export * from './Facet';
 export { ClientDevice } from './ClientDevice';
 export { ConsoleLogger, ConsoleLogger as Logger } from './Logger';
 export * from './Errors';
@@ -45,13 +45,13 @@ export default Amplify;
 
 const logger = new Logger('Core');
 
-if (AWS['util']) {
-    AWS['util'].userAgent = () => {
-        return Constants.userAgent;
-    };
-} else if (AWS.config) {
-    AWS.config.update({'customUserAgent': Constants.userAgent});
-} else {
-    logger.warn('No AWS.config');
-}
+// if (AWS['util']) {
+//     AWS['util'].userAgent = () => {
+//         return Constants.userAgent;
+//     };
+// } else if (AWS.config) {
+//     AWS.config.update({'customUserAgent': Constants.userAgent});
+// } else {
+//     logger.warn('No AWS.config');
+// }
 
