@@ -247,6 +247,15 @@ workflows:
                 - cypress-xr-test
           requires:
             - integration_test_setup
+      - integration_test_react_xr:
+          filters:
+            branches:
+              only:
+                - release
+                - master
+                - cypress-xr-test
+          requires:
+            - integration_test_setup
       - integration_test_vue:
           filters:
             branches:
