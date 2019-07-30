@@ -73,6 +73,46 @@ jobs:
       - persist_to_workspace:
           root: /root
           paths: amplify-js-samples-staging
+  integration_test_react_xr:
+    <<: *defaults
+    working_directory: ~/
+    steps:
+      - attach_workspace:
+          at: /root
+      - restore_cache:
+          key: amplify-js-{{ .Branch }}-{{ checksum "amplify-js-samples-staging/yarn.lock" }}
+      - run:
+          name: "Link aws-amplify"
+          command: |
+            cd amplify-js/packages/aws-amplify
+            yarn link
+      - run:
+          name: "Link aws-amplify-react"
+          command: |
+            cd amplify-js/packages/aws-amplify-react
+            yarn link
+      - run:
+          name: "Install React Sumerian Scene sample"
+          command: |
+            cd amplify-js-samples-staging/samples/react/xr/sumerian-scene
+            yarn
+            yarn link aws-amplify
+            yarn link aws-amplify-react
+      - run:
+          name: "Start React Sumerian Scene sample server in background"
+          command: |
+            cd amplify-js-samples-staging/samples/react/xr/sumerian-scene
+            yarn start
+          background: true
+      - run:
+          name: "Run cypress tests for React Sumerian Scene sample"
+          command: |
+            cd amplify-js-samples-staging
+            yarn cypress:react --spec "cypress/integration/xr/sumerian-scene.spec.js"
+      - store_artifacts:
+          path: amplify-js-samples-staging/cypress/videos
+      - store_artifacts:
+          path: amplify-js-samples-staging/cypress/screenshots
   integration_test_react:
     <<: *defaults
     working_directory: ~/
