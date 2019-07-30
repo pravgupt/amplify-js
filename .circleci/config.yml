@@ -195,6 +195,7 @@ workflows:
               only:
                 - release
                 - master
+                - cypress-xr-test
           requires:
             - build
       - integration_test_react:
@@ -203,6 +204,7 @@ workflows:
               only:
                 - release
                 - master
+                - cypress-xr-test
           requires:
             - integration_test_setup
       - integration_test_vue:
@@ -211,6 +213,7 @@ workflows:
               only:
                 - release
                 - master
+                - cypress-xr-test
           requires:
             - integration_test_setup
       - deploy:
