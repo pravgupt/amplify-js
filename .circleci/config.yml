@@ -230,7 +230,7 @@ workflows:
               only:
                 - release
                 - master
-                - predictions-sample-circleci
+                - predictions-integration-sample
           requires:
             - build
       - integration_test_react_predictions:
@@ -239,7 +239,7 @@ workflows:
               only:
                 - release
                 - master
-                - predictions-sample-circleci
+                - predictions-integration-sample
             requires:
               - integration_test_setup
       - integration_test_react:
