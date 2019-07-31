@@ -117,11 +117,6 @@ jobs:
       - restore_cache:
           key: amplify-js-{{ .Branch }}-{{ checksum "amplify-js-samples-staging/yarn.lock" }}
       - run:
-          name: "Install React Authenticator sample"
-          command: |
-            cd amplify-js-samples-staging/samples/react/auth/with-authenticator
-            yarn
-      - run:
           name: "Link aws-amplify"
           command: |
             cd amplify-js/packages/aws-amplify
