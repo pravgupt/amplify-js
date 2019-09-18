@@ -12,22 +12,26 @@
  */
 
 import { ConsoleLogger as Logger } from './Logger';
-import { AWS } from './Facet';
+import { Sha256 as browserSha256 } from '@aws-crypto/sha256-browser';
+import { toHex } from "@aws-sdk/util-hex-encoding";
 import { parse, format } from 'url';
 
 const logger = new Logger('Signer');
-const crypto = AWS['util'].crypto;
 
 const DEFAULT_ALGORITHM = 'AWS4-HMAC-SHA256';
 const IOT_SERVICE_NAME = 'iotdevicegateway';
 
-const encrypt = function(key, src, encoding?) {
-    return crypto.lib.createHmac('sha256', key).update(src, 'utf8').digest(encoding);
+const encrypt = async function(key, src) {
+    const hash = new browserSha256(key);
+    hash.update(src, 'utf8');
+    return await hash.digest();
 };
 
-const hash = function(src) {
+const hash = async function(src) {
     const arg = src || '';
-    return crypto.createHash('sha256').update(arg, 'utf8').digest('hex');
+    const hash = new browserSha256();
+    hash.update(arg, 'utf8');
+    return toHex(await hash.digest());
 };
 
 /**
@@ -126,7 +130,7 @@ CanonicalRequest =
     HexEncode(Hash(RequestPayload))
 </pre>
 */
-const canonical_request = function(request) {
+const canonical_request = async function(request) {
     const url_info = parse(request.url);
 
     return [
@@ -135,7 +139,7 @@ const canonical_request = function(request) {
         canonical_query(url_info.query),
         canonical_headers(request.headers),
         signed_headers(request.headers),
-        hash(request.data)
+        await hash(request.data)
     ].join('\n');
 };
 
@@ -179,12 +183,12 @@ StringToSign =
     HashedCanonicalRequest
 </pre>
 */
-const string_to_sign = function(algorithm, canonical_request, dt_str, scope) {
+const string_to_sign = async function(algorithm, canonical_request, dt_str, scope) {
     return [
         algorithm,
         dt_str,
         scope,
-        hash(canonical_request)
+        await hash(canonical_request)
     ].join('\n');
 };
 
@@ -202,19 +206,19 @@ kService = HMAC(kRegion, Service)
 kSigning = HMAC(kService, "aws4_request")
 </pre>
 */
-const get_signing_key = function(secret_key, d_str, service_info) {
+const get_signing_key = async function(secret_key, d_str, service_info) {
     logger.debug(service_info);
     const k = ('AWS4' + secret_key),
-        k_date = encrypt(k, d_str),
-        k_region = encrypt(k_date, service_info.region),
-        k_service = encrypt(k_region, service_info.service),
-        k_signing = encrypt(k_service, 'aws4_request');
+        k_date = await encrypt(k, d_str),
+        k_region = await encrypt(k_date, service_info.region),
+        k_service = await encrypt(k_region, service_info.service),
+        k_signing = await encrypt(k_service, 'aws4_request');
 
     return k_signing;
 };
 
-const get_signature = function(signing_key, str_to_sign) {
-    return encrypt(signing_key, str_to_sign, 'hex');
+const get_signature = async function(signing_key, str_to_sign) {
+    return toHex(await encrypt(signing_key, str_to_sign));
 };
 
 /**
@@ -267,7 +271,7 @@ service_info: {
 *
 * @returns {object} Signed HTTP request
 */
-const sign = function(request, access_info, service_info = null) {
+const sign = async function(request, access_info, service_info = null) {
     request.headers = request.headers || {};
 
     // datetime string and date string
@@ -283,7 +287,7 @@ const sign = function(request, access_info, service_info = null) {
     }
 
     // Task 1: Create a Canonical Request
-    const request_str = canonical_request(request);
+    const request_str = await canonical_request(request);
     logger.debug(request_str);
 
     // Task 2: Create a String to Sign
@@ -293,7 +297,7 @@ const sign = function(request, access_info, service_info = null) {
             serviceInfo.region,
             serviceInfo.service
         ),
-        str_to_sign = string_to_sign(
+        str_to_sign = await string_to_sign(
             DEFAULT_ALGORITHM,
             request_str,
             dt_str,
@@ -301,12 +305,12 @@ const sign = function(request, access_info, service_info = null) {
         );
 
     // Task 3: Calculate the Signature
-    const signing_key = get_signing_key(
+    const signing_key = await get_signing_key(
         access_info.secret_key,
         d_str,
         serviceInfo
     ),
-        signature = get_signature(signing_key, str_to_sign);
+        signature = await get_signature(signing_key, str_to_sign);
 
     // Task 4: Adding the Signing information to the Request
     const authorization_header = get_authorization_header(
@@ -321,7 +325,7 @@ const sign = function(request, access_info, service_info = null) {
     return request;
 };
 
-const signUrl = function(urlToSign: string, accessInfo: any, serviceInfo?: any, expiration?: Number) {
+const signUrl = async function(urlToSign: string, accessInfo: any, serviceInfo?: any, expiration?: Number) {
     const now = new Date().toISOString().replace(/[:\-]|\.\d{3}/g, '');
     const today = now.substr(0, 8);
     // Intentionally discarding search
@@ -348,7 +352,7 @@ const signUrl = function(urlToSign: string, accessInfo: any, serviceInfo?: any, 
         'X-Amz-SignedHeaders': Object.keys(signedHeaders).join(','),
     };
 
-    const canonicalRequest = canonical_request({
+    const canonicalRequest = await canonical_request({
         method: 'GET',
         url: format({
             ...parsedUrl,
@@ -360,19 +364,19 @@ const signUrl = function(urlToSign: string, accessInfo: any, serviceInfo?: any, 
         headers: signedHeaders,
     });
 
-    const stringToSign = string_to_sign(
+    const stringToSign = await string_to_sign(
         DEFAULT_ALGORITHM,
         canonicalRequest,
         now,
         credentialScope
     );
 
-    const signing_key = get_signing_key(
+    const signing_key = await get_signing_key(
         accessInfo.secret_key,
         today,
         { region, service },
     );
-    const signature = get_signature(signing_key, stringToSign);
+    const signature = await get_signature(signing_key, stringToSign);
 
     const additionalQueryParams = {
         'X-Amz-Signature': signature,

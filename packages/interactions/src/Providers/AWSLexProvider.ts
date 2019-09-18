@@ -14,7 +14,7 @@
 import { AbstractInteractionsProvider } from './InteractionsProvider';
 import { InteractionsOptions, InteractionsMessage, InteractionsResponse } from '../types';
 import * as LexRuntime from 'aws-sdk/clients/lexruntime';
-import { ConsoleLogger as Logger, AWS, Credentials } from '@aws-amplify/core';
+import { ConsoleLogger as Logger, Credentials } from '@aws-amplify/core';
 import { registerHelper } from 'handlebars';
 
 const logger = new Logger('AWSLexProvider');
@@ -72,9 +72,9 @@ export class AWSLexProvider extends AbstractInteractionsProvider {
             }
             const credentials = await Credentials.get();
             if (!credentials) { return rej('No credentials'); }
-            AWS.config.update({
-                credentials
-            });
+            // AWS.config.update({
+            //     credentials
+            // });
 
             this.aws_lex = new LexRuntime({ region: this._config[botname].region, credentials });
 
@@ -129,4 +129,3 @@ export class AWSLexProvider extends AbstractInteractionsProvider {
         this._botsCompleteCallback[botname] = callback;
     }
 }
-

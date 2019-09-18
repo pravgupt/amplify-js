@@ -121,7 +121,7 @@ export const generateRandomString = () => {
     return result;
 };
 
-export const makeQuerablePromise = (promise) => {
+export const makeQuerablePromise =  (promise) => {
     if (promise.isResolved) return promise;
 
     let isPending = true;
