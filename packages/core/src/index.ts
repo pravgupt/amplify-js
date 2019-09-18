@@ -33,7 +33,7 @@ export { Platform } from './Platform';
 export * from './constants';
 
 export const Constants = {
-    'userAgent': Platform.userAgent
+	userAgent: Platform.userAgent,
 };
 
 export { Amplify };
