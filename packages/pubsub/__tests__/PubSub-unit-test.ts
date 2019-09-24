@@ -6,13 +6,13 @@ import {
 	mqttTopicMatch,
 } from '../src/Providers';
 // import Amplify from '../../src/';
-import { Credentials } from '@aws-amplify/core';
+import { Credentials, ConsoleLogger as Logger } from '@aws-amplify/core';
 import { INTERNAL_AWS_APPSYNC_PUBSUB_PROVIDER } from '@aws-amplify/core/lib/constants';
 import * as Paho from '../src/vendor/paho-mqtt';
 
 const pahoClientMockCache = {};
 
-const mockConnect = jest.fn(options => {
+const mockConnect = jest.fn((options, callback) => {
 	options.onSuccess();
 });
 
@@ -348,37 +348,6 @@ describe('PubSub', () => {
 			).rejects.toThrowError('Failed to publish');
 		});
 
-		test('On unsubscribe when is the last observer it should disconnect the websocket', async () => {
-			const pubsub = new PubSub();
-
-			const spyDisconnect = jest.spyOn(
-				MqttOverWSProvider.prototype,
-				'disconnect'
-			);
-			const mqttOverWSProvider = new MqttOverWSProvider({
-				aws_pubsub_endpoint: 'wss://iot.mock-endpoint.org:443/mqtt',
-			});
-			pubsub.addPluggable(mqttOverWSProvider);
-
-			const subscription1 = pubsub.subscribe(['topic1', 'topic2']).subscribe({
-				next: _data => {
-					console.log({ _data });
-				},
-				complete: () => console.log('done'),
-				error: error => console.log('error', error),
-			});
-
-			// TODO: we should now when the connection is established to wait for that first
-			await (() => {
-				return new Promise(res => {
-					setTimeout(res, 100);
-				});
-			})();
-
-			subscription1.unsubscribe();
-			expect(spyDisconnect).toHaveBeenCalled();
-			spyDisconnect.mockClear();
-		});
 		test(
 			'For multiple observers, client should not be disconnected if there are ' +
 				'other observers connected when unsubscribing',
@@ -402,7 +371,7 @@ describe('PubSub', () => {
 					error: error => console.log('error', error),
 				});
 
-				const subscription2 = pubsub.subscribe(['topic3', 'topic4']).subscribe({
+				pubsub.subscribe(['topic3', 'topic4']).subscribe({
 					next: _data => {
 						console.log({ _data });
 					},
@@ -417,9 +386,9 @@ describe('PubSub', () => {
 					});
 				})();
 
-				subscription2.unsubscribe();
+				subscription1.unsubscribe();
 				expect(spyDisconnect).not.toHaveBeenCalled();
-				spyDisconnect.mockClear();
+				// setTimeout(async () => await pubsub.publish('topic4', 'my message'), 100);
 			}
 		);
 	});
