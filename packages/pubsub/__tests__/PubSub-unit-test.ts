@@ -6,13 +6,13 @@ import {
 	mqttTopicMatch,
 } from '../src/Providers';
 // import Amplify from '../../src/';
-import { Credentials, ConsoleLogger as Logger } from '@aws-amplify/core';
+import { Credentials } from '@aws-amplify/core';
 import { INTERNAL_AWS_APPSYNC_PUBSUB_PROVIDER } from '@aws-amplify/core/lib/constants';
 import * as Paho from '../src/vendor/paho-mqtt';
 
 const pahoClientMockCache = {};
 
-const mockConnect = jest.fn((options, callback) => {
+const mockConnect = jest.fn(options => {
 	options.onSuccess();
 });
 
