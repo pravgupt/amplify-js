@@ -85,11 +85,12 @@ export default class Authenticator extends React.Component<
 			Amplify.configure(config);
 		}
 		this._isMounted = true;
-		// the workaround for Cognito Hosted UI
-		// don't check the user immediately if redirected back from Hosted UI
-		// instead waiting for the hub event sent from Auth module
-		// the item in the localStorage is a mark to indicate whether
-		// the app is redirected back from Hosted UI or not
+		// The workaround for Cognito Hosted UI:
+		// Don't check the user immediately if redirected back from Hosted UI as
+		// it might take some time for credentials to be available, instead
+		// wait for the hub event sent from Auth module. This item in the
+		// localStorage is a mark to indicate whether the app is just redirected
+		// back from Hosted UI or not and is set in Auth:handleAuthResponse.
 		const byHostedUI = localStorage.getItem(
 			Constants.REDIRECTED_FROM_HOSTED_UI
 		);
