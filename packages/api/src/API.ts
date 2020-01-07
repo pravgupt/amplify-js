@@ -286,7 +286,11 @@ export default class APIClass {
 	isCancel(error) {
 		return this._api.isCancel(error);
 	}
-
+	/**
+	 * Cancels an inflight request
+	 * @param {any} request - request to cancel
+	 * @return {boolean} - A boolean indicating if the request was cancelled
+	 */
 	cancel(request: Promise<any>) {
 		return this._api.cancel(request);
 	}
