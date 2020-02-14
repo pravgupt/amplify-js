@@ -19,7 +19,7 @@ import {
 } from '@aws-amplify/core';
 
 import { RestClientOptions, AWSCredentials, apiOptions } from './types';
-import axios from 'axios';
+import axios, { CancelTokenSource } from 'axios';
 
 const logger = new Logger('RestClient'),
 	urlLib = require('url');
@@ -42,6 +42,7 @@ export class RestClient {
 	private _region: string = 'us-east-1'; // this will be updated by endpoint function
 	private _service: string = 'execute-api'; // this can be updated by endpoint function
 	private _custom_header = undefined; // this can be updated by endpoint function
+	private _cancelTokenMap: WeakMap<any, CancelTokenSource> = null;
 	/**
 	 * @param {RestClientOptions} [options] - Instance options
 	 */
@@ -49,6 +50,9 @@ export class RestClient {
 		const { endpoints } = options;
 		this._options = options;
 		logger.debug('API Options', this._options);
+		if (this._cancelTokenMap == null) {
+			this._cancelTokenMap = new WeakMap();
+		}
 	}
 
 	/**
@@ -249,6 +253,28 @@ export class RestClient {
 		return response;
 	}
 
+	/**
+	 * Cancel an inflight API request
+	 * @param {Promise<any>} request - The request promise to cancel
+	 * @param {string} [message] - A message to include in the cancelation exception
+	 */
+	cancel(request: Promise<any>, message?: string) {
+		const source = this._cancelTokenMap.get(request);
+		if (source) {
+			source.cancel(message);
+		}
+		return true;
+	}
+
+	/**
+	 * Checks to see if an error thrown is from an api request cancellation
+	 * @param {any} error - Any error
+	 * @return {boolean} - A boolean indicating if the error was from an api request cancellation
+	 */
+	isCancel(error): boolean {
+		return axios.isCancel(error);
+	}
+
 	/** private methods **/
 
 	private _signed(params, credentials, isAllResponse) {
@@ -294,12 +320,18 @@ export class RestClient {
 	}
 
 	private _request(params, isAllResponse = false) {
-		return axios(params)
+		const source = axios.CancelToken.source();
+		const paramsWithCancelToken = Object.assign({}, params, {
+			cancelToken: source.token,
+		});
+		const request = axios(paramsWithCancelToken)
 			.then(response => (isAllResponse ? response : response.data))
 			.catch(error => {
 				logger.debug(error);
 				throw error;
 			});
+		this._cancelTokenMap.set(request, source);
+		return request;
 	}
 
 	private _parseUrl(url) {

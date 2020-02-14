@@ -278,6 +278,22 @@ export default class APIClass {
 		}
 		return this._api.endpoint(apiName);
 	}
+	/**
+	 * Checks to see if an error thrown is from an api request cancellation
+	 * @param {any} error - Any error
+	 * @return {boolean} - A boolean indicating if the error was from an api request cancellation
+	 */
+	isCancel(error) {
+		return this._api.isCancel(error);
+	}
+	/**
+	 * Cancels an inflight request
+	 * @param {any} request - request to cancel
+	 * @return {boolean} - A boolean indicating if the request was cancelled
+	 */
+	cancel(request: Promise<any>) {
+		return this._api.cancel(request);
+	}
 
 	private async _headerBasedAuth(defaultAuthenticationType?) {
 		const {
