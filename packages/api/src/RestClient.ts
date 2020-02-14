@@ -311,12 +311,7 @@ export class RestClient {
 		logger.debug('Signed Request: ', signed_params);
 
 		delete signed_params.headers['host'];
-		return axios(signed_params)
-			.then(response => (isAllResponse ? response : response.data))
-			.catch(error => {
-				logger.debug(error);
-				throw error;
-			});
+		return this._request(signed_params, isAllResponse);
 	}
 
 	private _request(params, isAllResponse = false) {

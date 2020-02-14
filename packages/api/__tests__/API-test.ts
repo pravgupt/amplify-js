@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { CancelTokenStatic } from 'axios';
 import { CognitoIdentityCredentials } from 'aws-sdk';
 
 import {
@@ -18,6 +18,10 @@ import Cache from '@aws-amplify/cache';
 import * as Observable from 'zen-observable';
 
 jest.mock('axios');
+axios.CancelToken = <CancelTokenStatic>{
+	source: () => ({ token: null, cancel: null }),
+};
+let cancelTokenSpy = null;
 
 const config = {
 	API: {
@@ -29,6 +33,14 @@ const config = {
 describe('API test', () => {
 	afterEach(() => {
 		jest.restoreAllMocks();
+	});
+
+	beforeEach(() => {
+		cancelTokenSpy = jest
+			.spyOn(axios.CancelToken, 'source')
+			.mockImplementation(() => {
+				return { token: null, cancel: null };
+			});
 	});
 
 	const aws_cloud_logic_custom = [
