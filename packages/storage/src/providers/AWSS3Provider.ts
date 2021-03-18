@@ -307,19 +307,19 @@ export class AWSS3Provider implements StorageProvider {
 				}
 			});
 
-			const response = await uploader.upload();
-
-			logger.debug('upload result', response);
-			dispatchStorageEvent(
-				track,
-				'upload',
-				{ method: 'put', result: 'success' },
-				null,
-				`Upload success for ${key}`
-			);
-			return {
-				key,
-			};
+			return uploader.upload().then(response => {
+				logger.debug('upload result', response);
+				dispatchStorageEvent(
+					track,
+					'upload',
+					{ method: 'put', result: 'success' },
+					null,
+					`Upload success for ${key}`
+				);
+				return {
+					key,
+				};
+			});
 		} catch (error) {
 			logger.warn('error uploading', error);
 			dispatchStorageEvent(
